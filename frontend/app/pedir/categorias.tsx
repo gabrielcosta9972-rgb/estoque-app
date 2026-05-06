@@ -71,7 +71,7 @@ export default function PedirCategorias() {
 
       {totalCount > 0 ? (
         <TouchableOpacity
-          testID="goto-cart-fab"
+          testID="goto-cart-fab-categorias"
           style={styles.fab}
           onPress={() => router.push("/pedir/carrinho")}
           activeOpacity={0.9}

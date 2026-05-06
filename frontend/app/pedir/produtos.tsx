@@ -102,7 +102,7 @@ export default function PedirProdutos() {
 
       {totalCount > 0 ? (
         <TouchableOpacity
-          testID="goto-cart-fab"
+          testID="goto-cart-fab-produtos"
           style={styles.fab}
           onPress={() => router.push("/pedir/carrinho")}
           activeOpacity={0.9}
