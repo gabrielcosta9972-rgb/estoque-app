@@ -1,0 +1,157 @@
+{
+  "theme": "LIGHT",
+  "archetype": "4_SWISS_HIGH_CONTRAST",
+  "domain": "Enterprise_Mobile_Inventory",
+  "design_philosophy": {
+    "core": "Objective, function-first interface built for fast-paced warehouse environments. High legibility, large touch targets, and strict color-coding for rapid cognitive recognition.",
+    "accessibility": "Minimum 48px touch targets for gloved hands. High contrast text (APCA/WCAG compliant) for poor warehouse lighting."
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Outfit, system-ui",
+      "body": "Manrope, system-ui",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": { "size": "32px", "weight": "800", "tracking": "tight", "usage": "App Title / Login Header" },
+      "h2": { "size": "24px", "weight": "700", "tracking": "tight", "usage": "Screen Titles (Lojas, Categorias)" },
+      "h3": { "size": "18px", "weight": "600", "usage": "List Items, Card Titles" },
+      "body": { "size": "16px", "weight": "500", "usage": "Standard text, descriptions" },
+      "label": { "size": "14px", "weight": "600", "tracking": "wide", "textTransform": "uppercase", "usage": "Overlines, Status tags, Tab text" },
+      "micro": { "size": "12px", "weight": "500", "usage": "Timestamp, tiny helper text" }
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "#F8FAFC",
+      "card": "#FFFFFF",
+      "input": "#F1F5F9"
+    },
+    "text": {
+      "primary": "#0F172A",
+      "secondary": "#475569",
+      "disabled": "#94A3B8",
+      "inverse": "#FFFFFF"
+    },
+    "borders": {
+      "light": "#E2E8F0",
+      "strong": "#CBD5E1",
+      "focus": "#2563EB"
+    },
+    "flow_categories": {
+      "blue_order_stores": {
+        "primary": "#2563EB",
+        "bg_soft": "#EFF6FF",
+        "border": "#BFDBFE",
+        "usage": "Pedir flow, Lojas screen, primary action buttons"
+      },
+      "green_receive_categories": {
+        "primary": "#16A34A",
+        "bg_soft": "#F0FDF4",
+        "border": "#BBF7D0",
+        "usage": "Receber flow, Categorias screen, success states, Received tags"
+      },
+      "purple_products": {
+        "primary": "#7C3AED",
+        "bg_soft": "#F5F3FF",
+        "border": "#DDD6FE",
+        "usage": "Listas, Produtos screen, stock counters"
+      },
+      "orange_cart": {
+        "primary": "#EA580C",
+        "bg_soft": "#FFF7ED",
+        "border": "#FED7AA",
+        "usage": "Carrinho, Em via tags, pending states"
+      }
+    }
+  },
+  "spacing_and_layout": {
+    "padding": {
+      "screen": "16px",
+      "card": "20px",
+      "list_item": "16px"
+    },
+    "touch_targets": {
+      "min_height": "56px",
+      "button_padding": "16px",
+      "icon_button": "48px"
+    },
+    "border_radius": {
+      "button": "8px",
+      "card": "12px",
+      "input": "8px",
+      "tag": "4px"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "Solid background (Flow Color), inverse white text, min-height 56px, rounded-lg, strong font-bold",
+      "secondary": "Soft background (Flow Color bg_soft), Flow Color text, min-height 56px, rounded-lg",
+      "action_card": "Large square or wide rectangular touchable card. Background card color, 2px bottom shadow, icon left, title right. Border color matches flow."
+    },
+    "inputs": {
+      "text": "Background input color, 1px strong border, min-height 56px, 16px font size, placeholder text secondary",
+      "checkbox": "24x24px minimum size, 4px radius, active state uses purple_products.primary"
+    },
+    "lists": {
+      "item": "Row layout, Flex between, padding 16px, 1px bottom border light. Large touch area.",
+      "quantity_control": "Row with [-] [Count] [+]. Buttons 40x40px, count text 16px bold min-width 32px center aligned."
+    },
+    "status_tags": {
+      "em_estoque": "bg_soft green, text green, small uppercase label",
+      "em_via": "bg_soft orange, text orange, small uppercase label",
+      "recebido": "solid green, text inverse, small uppercase label"
+    }
+  },
+  "screens_flow": {
+    "1_login": {
+      "background_image": "login_background",
+      "layout": "Centered form, 16px padding. App Logo/Title (Estoque). Phone Input, Password Input. Primary Button (Entrar - Blue)."
+    },
+    "2_home": {
+      "header": "Welcome message (Olá, User).",
+      "content": "2 Massive Action Cards taking 50% height each or full width blocks. 'PEDIR' (Blue accent), 'RECEBER' (Green accent).",
+      "footer": "Simple status or sync info."
+    },
+    "3_lojas": {
+      "header": "Title 'Lojas', Blue theme. Stack Navigation Back button.",
+      "list": "Castelo, Mesc, Delivery, Baeta, Produção. Full width rows with right chevron."
+    },
+    "4_categorias": {
+      "header": "Title 'Categorias' or 'Setores'. Green theme (from Receber flow) or Blue (from Pedir).",
+      "list": "Secos, Geladeira, Limpeza, Embalagens. Grid 2x2 or thick list."
+    },
+    "5_listas_produtos": {
+      "header": "Purple theme. Title based on Category.",
+      "list_type_a_inventory": "Shows product name and current stock tag (e.g. 15 unid).",
+      "list_type_b_selection": "Checkbox left, Product Name center, Quantity controller right ([-][1][+])."
+    },
+    "6_carrinho": {
+      "header": "Title 'Carrinho', Orange theme.",
+      "content": "List of selected items. Total count.",
+      "action": "Massive 'CONFIRMAR PEDIDO' button at bottom (Orange). Sets status to 'em via!'"
+    },
+    "7_receber_flow": {
+      "header": "Title 'Receber Pedidos', Green theme.",
+      "content": "List of 'em via!' orders. Tap to confirm reception. Confirmed items show 'recebido'."
+    }
+  },
+  "media": {
+    "login_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/925cedce-413e-4ed0-bc84-d92a746835f0/images/479033b924cbe70304e390c6263857e3b06d759425ac1873aa37da5f59f9437e.png",
+      "description": "Clean geometric mobile app background for login screen"
+    },
+    "empty_state_box": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/925cedce-413e-4ed0-bc84-d92a746835f0/images/9838d69904d2f41290e9afc7ef0200486815bd5b26c26ab2adb978831349f4ac.png",
+      "description": "Minimalist high-contrast vector of a warehouse delivery box for empty states"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use standard React Native components (View, Text, TouchableOpacity, ScrollView) combined with Tailwind (NativeWind) or StyleSheet.",
+    "Do NOT use web-only HTML tags (div, span) since this is an Expo mobile app.",
+    "Ensure all interactive elements use TouchableOpacity or Pressable with clear visual feedback.",
+    "Apply test IDs to all buttons and inputs (e.g., testID='login-button', testID='product-item-2').",
+    "Use safe area insets (SafeAreaView) to prevent content from going under the notch or status bar.",
+    "Use Lucide-React-Native for icons, matching the flow color strictly (Blue/Green/Purple/Orange)."
+  ]
+}
