@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { SplashScreen } from "expo-router";
 import { useAuth } from "../src/auth";
 import { colors } from "../src/theme";
 
@@ -11,7 +10,6 @@ export default function Index() {
 
   useEffect(() => {
     if (loading) return;
-    SplashScreen.hideAsync().catch(() => {});
     if (user) router.replace("/home");
     else router.replace("/login");
   }, [loading, user, router]);
