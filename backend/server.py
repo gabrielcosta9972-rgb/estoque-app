@@ -46,13 +46,8 @@ STORE_LABELS = {
 }
 CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens", "Hortfrut", "Outros"]
 
-SEED_PRODUCTS = {
-    "Secos": ["Farinha 5k", "Feijão 1kg", "Açúcar 1kg", "Sal 1kg", "Macarrão 500g", "Farinha 1kg", "Óleo 900ml"],
-    "Geladeira": ["Leite 1L", "Manteiga 200g", "Queijo Mussarela", "Presunto 200g", "Iogurte", "Margarina"],
-    "Limpeza": ["Detergente", "Sabão em Pó", "Desinfetante", "Água Sanitária", "Esponja", "Álcool 70%"],
-    "Embalagens": ["Saco 5kg", "Saco 10kg", "Marmita P", "Marmita G", "Copo 200ml", "Sacola Plástica"],
-    "Hortfrut": ["Manjericão "],
-}
+# Lista de produtos vem de products_config.py (edite lá!)
+from products_config import PRODUCTS as SEED_PRODUCTS
 
 
 
@@ -296,27 +291,30 @@ async def on_startup():
     await db.products.create_index([("category", 1), ("name", 1)])
     await db.orders.create_index("store")
     await db.orders.create_index("status")
-    await db.orders.create_index("created_at")  
-    
-    docs = []
+    await db.orders.create_index("created_at")
 
-    for cat, names in SEED_PRODUCTS.items():
-        for n in names:
-            existing = await db.products.find_one({
-             "category": cat,
-             "name": n
+    # Sincroniza catálogo de produtos com products_config.py
+    # - Adiciona novos
+    # - Remove os que sumiram da lista
+    desired = {(cat, name.strip()) for cat, names in SEED_PRODUCTS.items() for name in names if name.strip()}
+    existing_docs = await db.products.find({}, {"_id": 0}).to_list(2000)
+    existing_set = {(d["category"], d["name"]) for d in existing_docs}
+
+    to_insert = desired - existing_set
+    to_delete = existing_set - desired
+
+    if to_insert:
+        await db.products.insert_many([
+            {"id": str(uuid.uuid4()), "category": cat, "name": name}
+            for (cat, name) in to_insert
+        ])
+    if to_delete:
+        await db.products.delete_many({
+            "$or": [{"category": cat, "name": name} for (cat, name) in to_delete]
         })
 
-        if not existing:
-            docs.append({
-                "id": str(uuid.uuid4()),
-                "name": n,
-                "category": cat,
-            })
-
-    if docs:
-        await db.products.insert_many(docs)
-    logger.info("Seeded %d products", len(docs))
+    logger.info("Sync produtos: +%d novos, -%d removidos, %d total",
+                len(to_insert), len(to_delete), len(desired))
 
 
 @app.on_event("shutdown")
