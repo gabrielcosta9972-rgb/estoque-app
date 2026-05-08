@@ -277,12 +277,6 @@ async def list_orders(
         # Quem PEDE só vê seus próprios pedidos
         query["created_by"] = user["id"]
     orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
-
-    # Quem RECEBE não pode ver quem fez o pedido
-    if user_role == "receber":
-        for o in orders:
-            o["created_by_name"] = None
-            o["created_by"] = ""
     return [Order(**o) for o in orders]
 
 
@@ -309,8 +303,6 @@ async def receive_order(order_id: str, user: dict = Depends(get_current_user)):
         "received_by": user["id"],
         "received_by_name": user["name"],
         "received_at": now,
-        "created_by": "",
-        "created_by_name": None,
     })
     return Order(**order)
 

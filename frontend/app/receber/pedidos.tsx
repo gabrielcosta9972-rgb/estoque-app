@@ -111,10 +111,10 @@ export default function ReceberPedidos() {
           renderItem={({ item }) => (
             <View style={styles.card} testID={`order-card-${item.id}`}>
               <View style={styles.cardHeader}>
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.cardTitle}>Pedido</Text>
                   <Text style={styles.cardMeta}>
-                    {formatDate(item.created_at)}
+                    {item.created_by_name ? `${item.created_by_name} · ` : ""}{formatDate(item.created_at)}
                   </Text>
                 </View>
                 <View style={styles.tag}>
