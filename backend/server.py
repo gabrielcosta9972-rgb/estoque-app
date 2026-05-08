@@ -44,7 +44,7 @@ STORE_LABELS = {
     "Baeta": "Baeta",
     "Producao": "Produção",
 }
-CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens","Hortfrut","Outros"],
+CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens", "Hortfrut", "Outros"],
 
 SEED_PRODUCTS = {
     "Secos": ["Farinha 5k", "Feijão 1kg", "Açúcar 1kg", "Sal 1kg", "Macarrão 500g", "Farinha 1kg", "Óleo 900ml"],
