@@ -53,7 +53,7 @@ export default function Login() {
               <Package size={36} color={colors.inverse} />
             </View>
             <Text style={styles.title}>Estoque</Text>
-            <Text style={styles.subtitle}>Simples e objetivo</Text>
+            <Text style={styles.subtitle}>Marikota</Text>
           </View>
 
           <View style={styles.card}>

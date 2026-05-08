@@ -2,18 +2,11 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Wheat, Refrigerator, SprayCan, Box, ChevronRight, ShoppingCart } from "lucide-react-native";
+import { ChevronRight, ShoppingCart } from "lucide-react-native";
 import ScreenHeader from "../../src/ScreenHeader";
 import { api, formatApiError } from "../../src/api";
 import { useCart } from "../../src/cart";
 import { colors, spacing, radius } from "../../src/theme";
-
-const ICONS: Record<string, any> = {
-  Secos: Wheat,
-  Geladeira: Refrigerator,
-  Limpeza: SprayCan,
-  Embalagens: Box,
-};
 
 export default function PedirCategorias() {
   const router = useRouter();
@@ -48,24 +41,18 @@ export default function PedirCategorias() {
         <Text style={styles.error}>{error}</Text>
       ) : (
         <ScrollView contentContainerStyle={styles.body}>
-          {categories.map((c) => {
-            const Icon = ICONS[c] || Box;
-            return (
-              <TouchableOpacity
-                key={c}
-                testID={`category-${c}`}
-                style={styles.row}
-                activeOpacity={0.8}
-                onPress={() => router.push({ pathname: "/pedir/produtos", params: { category: c } })}
-              >
-                <View style={[styles.iconBox, { backgroundColor: colors.purpleSoft }]}>
-                  <Icon size={22} color={colors.purple} />
-                </View>
-                <Text style={styles.label}>{c}</Text>
-                <ChevronRight size={20} color={colors.textDisabled} />
-              </TouchableOpacity>
-            );
-          })}
+          {categories.map((c) => (
+            <TouchableOpacity
+              key={c}
+              testID={`category-${c}`}
+              style={styles.row}
+              activeOpacity={0.8}
+              onPress={() => router.push({ pathname: "/pedir/produtos", params: { category: c } })}
+            >
+              <Text style={styles.label}>{c}</Text>
+              <ChevronRight size={20} color={colors.textDisabled} />
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       )}
 

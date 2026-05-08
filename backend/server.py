@@ -19,7 +19,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
-# ----- Setup -----
+
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
@@ -35,7 +35,7 @@ security = HTTPBearer(auto_error=False)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# ----- Constants -----
+
 STORES = ["Castelo", "Mesc", "Delivery", "Baeta", "Producao"]
 STORE_LABELS = {
     "Castelo": "Castelo",
@@ -44,17 +44,18 @@ STORE_LABELS = {
     "Baeta": "Baeta",
     "Producao": "Produção",
 }
-CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens"]
+CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens","Hortfrut","Outros"],
 
 SEED_PRODUCTS = {
-    "Secos": ["Arroz 5kg", "Feijão 1kg", "Açúcar 1kg", "Sal 1kg", "Macarrão 500g", "Farinha 1kg", "Óleo 900ml"],
+    "Secos": ["Farinha 5k", "Feijão 1kg", "Açúcar 1kg", "Sal 1kg", "Macarrão 500g", "Farinha 1kg", "Óleo 900ml"],
     "Geladeira": ["Leite 1L", "Manteiga 200g", "Queijo Mussarela", "Presunto 200g", "Iogurte", "Margarina"],
     "Limpeza": ["Detergente", "Sabão em Pó", "Desinfetante", "Água Sanitária", "Esponja", "Álcool 70%"],
     "Embalagens": ["Saco 5kg", "Saco 10kg", "Marmita P", "Marmita G", "Copo 200ml", "Sacola Plástica"],
+    "Hortfrut": ["Manjericão "],
 }
 
 
-# ----- Helpers -----
+
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -295,18 +296,27 @@ async def on_startup():
     await db.products.create_index([("category", 1), ("name", 1)])
     await db.orders.create_index("store")
     await db.orders.create_index("status")
-    await db.orders.create_index("created_at")
+    await db.orders.create_index("created_at")  
+    
+    docs = []
 
-    # Seed products if empty
-    existing = await db.products.count_documents({})
-    if existing == 0:
-        docs = []
-        for cat, names in SEED_PRODUCTS.items():
-            for n in names:
-                docs.append({"id": str(uuid.uuid4()), "name": n, "category": cat})
-        if docs:
-            await db.products.insert_many(docs)
-        logger.info("Seeded %d products", len(docs))
+    for cat, names in SEED_PRODUCTS.items():
+        for n in names:
+            existing = await db.products.find_one({
+             "category": cat,
+             "name": n
+        })
+
+        if not existing:
+            docs.append({
+                "id": str(uuid.uuid4()),
+                "name": n,
+                "category": cat,
+            })
+
+    if docs:
+        await db.products.insert_many(docs)
+    logger.info("Seeded %d products", len(docs))
 
 
 @app.on_event("shutdown")

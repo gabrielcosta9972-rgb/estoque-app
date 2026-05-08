@@ -2,20 +2,12 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ChevronRight, Store, Bike, Castle, Home, Factory } from "lucide-react-native";
+import { ChevronRight } from "lucide-react-native";
 import ScreenHeader from "../../src/ScreenHeader";
 import { api, formatApiError } from "../../src/api";
 import { colors, spacing, radius } from "../../src/theme";
 
 type StoreItem = { id: string; label: string };
-
-const ICONS: Record<string, any> = {
-  Castelo: Castle,
-  Mesc: Store,
-  Delivery: Bike,
-  Baeta: Home,
-  Producao: Factory,
-};
 
 export default function ReceberLojas() {
   const router = useRouter();
@@ -58,7 +50,6 @@ export default function ReceberLojas() {
           keyExtractor={(s) => s.id}
           contentContainerStyle={{ padding: spacing.md, paddingTop: 0 }}
           renderItem={({ item }) => {
-            const Icon = ICONS[item.id] || Store;
             const pending = counts[item.id] || 0;
             return (
               <TouchableOpacity
@@ -67,9 +58,6 @@ export default function ReceberLojas() {
                 activeOpacity={0.8}
                 style={styles.row}
               >
-                <View style={[styles.iconBox, { backgroundColor: colors.greenSoft }]}>
-                  <Icon size={22} color={colors.green} />
-                </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>{item.label}</Text>
                   <Text style={styles.sub}>
@@ -103,14 +91,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.sm,
     minHeight: 64,
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: spacing.md,
   },
   label: { fontSize: 16, fontWeight: "600", color: colors.textPrimary },
   sub: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
