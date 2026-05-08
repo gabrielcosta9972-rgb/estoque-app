@@ -22,7 +22,7 @@ type Order = {
   store_label: string;
   items: { product_id: string; name: string; quantity: number }[];
   status: string;
-  created_by_name: string;
+  created_by_name?: string | null;
   created_at: string;
 };
 
@@ -114,7 +114,7 @@ export default function ReceberPedidos() {
                 <View>
                   <Text style={styles.cardTitle}>Pedido</Text>
                   <Text style={styles.cardMeta}>
-                    {item.created_by_name} · {formatDate(item.created_at)}
+                    {formatDate(item.created_at)}
                   </Text>
                 </View>
                 <View style={styles.tag}>

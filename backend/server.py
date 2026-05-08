@@ -46,7 +46,7 @@ STORE_LABELS = {
 }
 CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens", "Hortfrut", "Outros"]
 
-# Lista de produtos vem de products_config.py (edite lá!)
+
 from products_config import PRODUCTS as SEED_PRODUCTS
 
 
@@ -95,6 +95,7 @@ class RegisterRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=80)
     phone: str = Field(..., min_length=8, max_length=20)
     password: str = Field(..., min_length=4, max_length=80)
+    role: str = Field(..., pattern="^(pedir|receber)$")
 
 
 class LoginRequest(BaseModel):
@@ -106,6 +107,7 @@ class UserOut(BaseModel):
     id: str
     name: str
     phone: str
+    role: str
     created_at: datetime
 
 
@@ -138,11 +140,20 @@ class Order(BaseModel):
     items: List[OrderItem]
     status: str  # 'em_via' or 'recebido'
     created_by: str
-    created_by_name: str
+    created_by_name: Optional[str] = None
     created_at: datetime
     received_by: Optional[str] = None
     received_by_name: Optional[str] = None
     received_at: Optional[datetime] = None
+
+
+def require_role(user: dict, role: str):
+    user_role = user.get("role") or "pedir"
+    if user_role != role:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Acesso negado: este usuário é do tipo '{user_role}'.",
+        )
 
 
 # ----- Auth endpoints -----
@@ -159,6 +170,7 @@ async def register(payload: RegisterRequest):
         "id": user_id,
         "name": payload.name.strip(),
         "phone": phone,
+        "role": payload.role,
         "password_hash": hash_password(payload.password),
         "created_at": datetime.now(timezone.utc),
     }
@@ -166,7 +178,7 @@ async def register(payload: RegisterRequest):
     token = create_access_token(user_id, phone)
     return AuthResponse(
         token=token,
-        user=UserOut(id=user_id, name=user_doc["name"], phone=phone, created_at=user_doc["created_at"]),
+        user=UserOut(id=user_id, name=user_doc["name"], phone=phone, role=payload.role, created_at=user_doc["created_at"]),
     )
 
 
@@ -179,13 +191,25 @@ async def login(payload: LoginRequest):
     token = create_access_token(user["id"], user["phone"])
     return AuthResponse(
         token=token,
-        user=UserOut(id=user["id"], name=user["name"], phone=user["phone"], created_at=user["created_at"]),
+        user=UserOut(
+            id=user["id"],
+            name=user["name"],
+            phone=user["phone"],
+            role=user.get("role") or "pedir",
+            created_at=user["created_at"],
+        ),
     )
 
 
 @api_router.get("/auth/me", response_model=UserOut)
 async def me(user: dict = Depends(get_current_user)):
-    return UserOut(**user)
+    return UserOut(
+        id=user["id"],
+        name=user["name"],
+        phone=user["phone"],
+        role=user.get("role") or "pedir",
+        created_at=user["created_at"],
+    )
 
 
 # ----- Catalog endpoints -----
@@ -211,6 +235,7 @@ async def list_products(category: Optional[str] = None, _: dict = Depends(get_cu
 # ----- Orders -----
 @api_router.post("/orders", response_model=Order)
 async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_current_user)):
+    require_role(user, "pedir")
     if payload.store not in STORES:
         raise HTTPException(status_code=400, detail="Loja inválida")
     if not payload.items:
@@ -242,19 +267,28 @@ async def list_orders(
     mine: bool = False,
     user: dict = Depends(get_current_user),
 ):
+    user_role = user.get("role") or "pedir"
     query = {}
     if store:
         query["store"] = store
     if status:
         query["status"] = status
-    if mine:
+    if mine or user_role == "pedir":
+        # Quem PEDE só vê seus próprios pedidos
         query["created_by"] = user["id"]
     orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
+
+    # Quem RECEBE não pode ver quem fez o pedido
+    if user_role == "receber":
+        for o in orders:
+            o["created_by_name"] = None
+            o["created_by"] = ""
     return [Order(**o) for o in orders]
 
 
 @api_router.post("/orders/{order_id}/receive", response_model=Order)
 async def receive_order(order_id: str, user: dict = Depends(get_current_user)):
+    require_role(user, "receber")
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido não encontrado")
@@ -275,6 +309,8 @@ async def receive_order(order_id: str, user: dict = Depends(get_current_user)):
         "received_by": user["id"],
         "received_by_name": user["name"],
         "received_at": now,
+        "created_by": "",
+        "created_by_name": None,
     })
     return Order(**order)
 

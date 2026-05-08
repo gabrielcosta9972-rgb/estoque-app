@@ -6,6 +6,7 @@ export type User = {
   id: string;
   name: string;
   phone: string;
+  role: "pedir" | "receber";
   created_at: string;
 };
 
@@ -13,7 +14,7 @@ type AuthState = {
   user: User | null;
   loading: boolean;
   login: (phone: string, password: string) => Promise<void>;
-  register: (name: string, phone: string, password: string) => Promise<void>;
+  register: (name: string, phone: string, password: string, role: "pedir" | "receber") => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -54,9 +55,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (name: string, phone: string, password: string) => {
+  const register = async (name: string, phone: string, password: string, role: "pedir" | "receber") => {
     try {
-      const { data } = await api.post("/auth/register", { name, phone, password });
+      const { data } = await api.post("/auth/register", { name, phone, password, role });
       await AsyncStorage.setItem(TOKEN_KEY, data.token);
       setUser(data.user);
     } catch (e) {

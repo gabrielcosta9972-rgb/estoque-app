@@ -51,35 +51,39 @@ export default function Home() {
 
         <Text style={styles.section}>Ação principal</Text>
 
-        <TouchableOpacity
-          testID="action-pedir"
-          style={[styles.actionCard, { borderColor: colors.blueBorder, backgroundColor: colors.blueSoft }]}
-          onPress={() => router.push("/pedir/lojas")}
-          activeOpacity={0.85}
-        >
-          <View style={[styles.iconBox, { backgroundColor: colors.blue }]}>
-            <ShoppingCart size={28} color={colors.inverse} />
-          </View>
-          <View style={styles.actionTexts}>
-            <Text style={[styles.actionTitle, { color: colors.blue }]}>PEDIR</Text>
-            <Text style={styles.actionDesc}>Solicitar produtos a uma loja</Text>
-          </View>
-        </TouchableOpacity>
+        {user.role === "pedir" ? (
+          <TouchableOpacity
+            testID="action-pedir"
+            style={[styles.actionCard, { borderColor: colors.blueBorder, backgroundColor: colors.blueSoft }]}
+            onPress={() => router.push("/pedir/lojas")}
+            activeOpacity={0.85}
+          >
+            <View style={[styles.iconBox, { backgroundColor: colors.blue }]}>
+              <ShoppingCart size={28} color={colors.inverse} />
+            </View>
+            <View style={styles.actionTexts}>
+              <Text style={[styles.actionTitle, { color: colors.blue }]}>PEDIR</Text>
+              <Text style={styles.actionDesc}>Solicitar produtos a uma loja</Text>
+            </View>
+          </TouchableOpacity>
+        ) : null}
 
-        <TouchableOpacity
-          testID="action-receber"
-          style={[styles.actionCard, { borderColor: colors.greenBorder, backgroundColor: colors.greenSoft }]}
-          onPress={() => router.push("/receber/lojas")}
-          activeOpacity={0.85}
-        >
-          <View style={[styles.iconBox, { backgroundColor: colors.green }]}>
-            <PackageOpen size={28} color={colors.inverse} />
-          </View>
-          <View style={styles.actionTexts}>
-            <Text style={[styles.actionTitle, { color: colors.green }]}>RECEBER</Text>
-            <Text style={styles.actionDesc}>Confirmar entrega de pedidos</Text>
-          </View>
-        </TouchableOpacity>
+        {user.role === "receber" ? (
+          <TouchableOpacity
+            testID="action-receber"
+            style={[styles.actionCard, { borderColor: colors.greenBorder, backgroundColor: colors.greenSoft }]}
+            onPress={() => router.push("/receber/lojas")}
+            activeOpacity={0.85}
+          >
+            <View style={[styles.iconBox, { backgroundColor: colors.green }]}>
+              <PackageOpen size={28} color={colors.inverse} />
+            </View>
+            <View style={styles.actionTexts}>
+              <Text style={[styles.actionTitle, { color: colors.green }]}>RECEBER</Text>
+              <Text style={styles.actionDesc}>Confirmar entrega de pedidos</Text>
+            </View>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
