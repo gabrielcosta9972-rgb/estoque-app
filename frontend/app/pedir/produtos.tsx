@@ -6,16 +6,24 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Minus, Plus, ShoppingCart, Check } from "lucide-react-native";
+import { Minus, Plus, ShoppingCart, Check, Search, X } from "lucide-react-native";
 import ScreenHeader from "../../src/ScreenHeader";
 import { api, formatApiError } from "../../src/api";
 import { useCart } from "../../src/cart";
 import { colors, spacing, radius } from "../../src/theme";
 
 type Product = { id: string; name: string; category: string };
+
+function normalize(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 export default function PedirProdutos() {
   const router = useRouter();
@@ -24,6 +32,7 @@ export default function PedirProdutos() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -44,6 +53,12 @@ export default function PedirProdutos() {
     return m;
   }, [items]);
 
+  const filtered = useMemo(() => {
+    const q = normalize(query.trim());
+    if (!q) return products;
+    return products.filter((p) => normalize(p.name).includes(q));
+  }, [products, query]);
+
   const updateQty = (p: Product, delta: number) => {
     const current = cartMap[p.id] || 0;
     const next = Math.max(0, current + delta);
@@ -53,14 +68,42 @@ export default function PedirProdutos() {
   return (
     <SafeAreaView style={styles.safe} testID="pedir-produtos-screen">
       <ScreenHeader title={String(category || "Produtos")} subtitle="Selecione e ajuste a quantidade" color={colors.purple} />
+
+      <View style={styles.searchWrap}>
+        <View style={styles.searchBox}>
+          <Search size={18} color={colors.textSecondary} />
+          <TextInput
+            testID="search-input"
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Buscar produto..."
+            placeholderTextColor={colors.textDisabled}
+            style={styles.searchInput}
+            autoCorrect={false}
+            autoCapitalize="none"
+            returnKeyType="search"
+          />
+          {query.length > 0 ? (
+            <TouchableOpacity
+              testID="search-clear"
+              onPress={() => setQuery("")}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <X size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      </View>
+
       {loading ? (
         <ActivityIndicator color={colors.purple} style={{ marginTop: 32 }} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
         <FlatList
-          data={products}
+          data={filtered}
           keyExtractor={(p) => p.id}
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: spacing.md, paddingTop: 0, paddingBottom: 120 }}
           renderItem={({ item }) => {
             const qty = cartMap[item.id] || 0;
@@ -96,7 +139,11 @@ export default function PedirProdutos() {
               </View>
             );
           }}
-          ListEmptyComponent={<Text style={styles.empty}>Nenhum produto nesta categoria</Text>}
+          ListEmptyComponent={
+            <Text style={styles.empty}>
+              {query ? "Nenhum produto encontrado para essa busca" : "Nenhum produto nesta categoria"}
+            </Text>
+          }
         />
       )}
 
@@ -117,6 +164,27 @@ export default function PedirProdutos() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+  searchWrap: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.card,
+    borderRadius: radius.input,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    paddingHorizontal: spacing.md,
+    minHeight: 48,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: spacing.sm,
+    fontSize: 16,
+    color: colors.textPrimary,
+    paddingVertical: 8,
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
