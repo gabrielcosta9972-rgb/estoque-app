@@ -44,7 +44,7 @@ STORE_LABELS = {
     "Baeta": "Baeta",
     "Producao": "Produção",
 }
-CATEGORIES = ["Secos", "Geladeira", "Limpeza", "Embalagens", "Hortfrut", "Bebidas", "Outros"]
+CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Embalagens", "Hortfrut", "Bebidas", "Outros"]
 
 
 from products_config import PRODUCTS as SEED_PRODUCTS

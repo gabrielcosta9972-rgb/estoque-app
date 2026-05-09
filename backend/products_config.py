@@ -19,8 +19,8 @@ CUIDADO:
 """
 
 PRODUCTS = {
-    "Secos": [
-        "Arroz 5kg",
+    "Mercearia": [
+        "Atum",
         "Feijão 1kg",
         "Açúcar 1kg",
         "Sal 1kg",
@@ -28,26 +28,26 @@ PRODUCTS = {
         "Farinha 1kg",
         "Óleo 900ml",
     ],
-    "Geladeira": [
+    "Resfriados": [
         "Açucar",
         "Açai",
         "Queijo Mussarela",
-        "Presunto 200g",
-        "Iogurte",
-        "Margarina",
+        "Apresuntado",
+        "Bacon",
+        "Atum",
     ],
     "Hortfrut": [
         "Abacaxi",
         "Abobrinha",
-        "",
+        "Alecrim",
         "Água Sanitária",
         "Esponja",
-        "Álcool 70%",
+        "Alface",
     ],
     "Bebidas":[
-        "Agua",
-        "Agua com gas",
-        
+        "Água",
+        "Água com gas",
+
 
     ],
     "Embalagens": [
@@ -62,7 +62,7 @@ PRODUCTS = {
         "Detergente",
         "Saco de lixo",
         "Esponja",
-        "Alcool",
+        "Álcool",
     ],
     "Outros": [
         "Abridor",
