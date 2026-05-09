@@ -16,7 +16,7 @@ import { api, formatApiError } from "../../src/api";
 import { useCart } from "../../src/cart";
 import { colors, spacing, radius } from "../../src/theme";
 
-type Product = { id: string; name: string; category: string; unit: string };
+type Product = { id: string; name: string; category: string };
 
 function normalize(s: string): string {
   return s
@@ -62,7 +62,7 @@ export default function PedirProdutos() {
   const updateQty = (p: Product, delta: number) => {
     const current = cartMap[p.id] || 0;
     const next = Math.max(0, current + delta);
-    addOrUpdate({ product_id: p.id, name: p.name, quantity: next, unit: p.unit || "un" });
+    addOrUpdate({ product_id: p.id, name: p.name, quantity: next });
   };
 
   return (
@@ -113,12 +113,9 @@ export default function PedirProdutos() {
                 <View style={[styles.checkBox, selected && styles.checkBoxOn]}>
                   {selected ? <Check size={16} color={colors.inverse} /> : null}
                 </View>
-                <View style={{ flex: 1, marginRight: spacing.sm }}>
-                  <Text style={styles.name} numberOfLines={2}>
-                    {item.name}
-                  </Text>
-                  <Text style={styles.unitLabel}>por {item.unit || "un"}</Text>
-                </View>
+                <Text style={styles.name} numberOfLines={2}>
+                  {item.name}
+                </Text>
                 <View style={styles.qtyRow}>
                   <TouchableOpacity
                     testID={`product-${item.id}-decrement`}
@@ -212,8 +209,7 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   checkBoxOn: { backgroundColor: colors.purple, borderColor: colors.purple },
-  name: { fontSize: 15, fontWeight: "600", color: colors.textPrimary },
-  unitLabel: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  name: { flex: 1, fontSize: 15, fontWeight: "600", color: colors.textPrimary, marginRight: spacing.sm },
   qtyRow: { flexDirection: "row", alignItems: "center" },
   qtyBtn: {
     width: 36,

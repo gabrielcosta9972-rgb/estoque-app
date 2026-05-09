@@ -3,24 +3,14 @@
    EDITE ESTE ARQUIVO PARA ADICIONAR / REMOVER / RENOMEAR PRODUTOS
 ========================================================================
 
-FORMATO BÁSICO:
-  - "Nome do produto"               -> conta por UNIDADE (un)
-  - "Nome do produto | kg"          -> conta por QUILO (kg)
-  - "Nome do produto | L"           -> conta por LITRO (L)
-  - "Nome do produto | g"           -> conta por GRAMA (g)
-
-Você pode usar QUALQUER unidade depois do '|'. Exemplos:
-    "Tomate | kg"          -> 5 kg
-    "Leite | L"            -> 2 L
-    "Sabão em Pó | un"     -> 3 un (mesmo que sem '|')
-    "Refrigerante | 2L"    -> 4 garrafas de 2L
-
-COMO FUNCIONA:
-  - Toda vez que o servidor reinicia, o banco é sincronizado:
-      * Produto novo na lista  -> CRIADO
-      * Produto removido       -> APAGADO
-      * Mudou unidade ou nome  -> Apaga o antigo e cria o novo
-  - Pedidos antigos NÃO mudam (a unidade fica congelada no pedido).
+Como funciona:
+  - Cada chave abaixo é uma CATEGORIA (deve existir em CATEGORIES no server.py).
+  - Cada item da lista é o NOME do produto que aparecerá no app.
+  - Toda vez que o servidor reinicia, o banco é sincronizado automaticamente:
+      * Produto novo na lista  -> CRIADO no banco
+      * Produto removido       -> APAGADO do banco
+      * Produto renomeado      -> APAGA o antigo e CRIA o novo
+  - Pedidos antigos NÃO são afetados (os nomes ficam guardados no pedido).
 
 CUIDADO:
   - Cada nome entre aspas "..." e separado por vírgula.
@@ -30,29 +20,29 @@ CUIDADO:
 
 PRODUCTS = {
     "Secos": [
-        "Arroz | kg",
-        "Feijão | kg",
-        "Açúcar | kg",
-        "Sal | kg",
+        "Arroz 5kg",
+        "Feijão 1kg",
+        "Açúcar 1kg",
+        "Sal 1kg",
         "Macarrão 500g",
-        "Farinha | kg",
+        "Farinha 1kg",
         "Óleo 900ml",
     ],
     "Geladeira": [
-        "Leite | L",
+        "Leite 1L",
         "Manteiga 200g",
-        "Queijo Mussarela | kg",
-        "Presunto | kg",
+        "Queijo Mussarela",
+        "Presunto 200g",
         "Iogurte",
         "Margarina",
     ],
     "Limpeza": [
         "Detergente",
         "Sabão em Pó",
-        "Desinfetante | L",
-        "Água Sanitária | L",
+        "Desinfetante",
+        "Água Sanitária",
         "Esponja",
-        "Álcool 70% | L",
+        "Álcool 70%",
     ],
     "Embalagens": [
         "Saco 5kg",
@@ -64,9 +54,9 @@ PRODUCTS = {
     ],
     "Hortfrut": [
         "Manjericão",
-        "Tomate | kg",
-        "Cebola | kg",
-        "Alho | kg",
+        "Tomate",
+        "Cebola",
+        "Alho",
     ],
     "Outros": [
         # Adicione aqui produtos avulsos

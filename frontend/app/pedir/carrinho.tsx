@@ -27,7 +27,7 @@ export default function Carrinho() {
     try {
       await api.post("/orders", {
         store,
-        items: items.map((i) => ({ product_id: i.product_id, name: i.name, quantity: i.quantity, unit: i.unit || "un" })),
+        items: items.map((i) => ({ product_id: i.product_id, name: i.name, quantity: i.quantity })),
       });
       clear();
       Alert.alert("Pedido enviado!", "Seu pedido está em via.", [
@@ -69,7 +69,7 @@ export default function Carrinho() {
               <View style={styles.row} testID={`cart-item-${item.product_id}`}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.name}>{item.name}</Text>
-                  <Text style={styles.meta}>Quantidade: {item.quantity} {item.unit || "un"}</Text>
+                  <Text style={styles.meta}>Quantidade: {item.quantity}</Text>
                 </View>
                 <TouchableOpacity
                   testID={`cart-remove-${item.product_id}`}

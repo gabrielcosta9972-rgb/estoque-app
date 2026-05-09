@@ -20,7 +20,7 @@ type Order = {
   id: string;
   store: string;
   store_label: string;
-  items: { product_id: string; name: string; quantity: number; unit?: string }[];
+  items: { product_id: string; name: string; quantity: number }[];
   status: string;
   created_by_name?: string | null;
   created_at: string;
@@ -127,7 +127,7 @@ export default function ReceberPedidos() {
                   <Text style={styles.itemName} numberOfLines={2}>
                     {it.name}
                   </Text>
-                  <Text style={styles.itemQty}>{it.quantity} {it.unit || "un"}</Text>
+                  <Text style={styles.itemQty}>x{it.quantity}</Text>
                 </View>
               ))}
 
