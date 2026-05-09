@@ -36,13 +36,19 @@ PRODUCTS = {
         "Iogurte",
         "Margarina",
     ],
-    "HortFrut": [
+    "Hortfrut": [
         "Abacaxi",
         "Abobrinha",
         "",
         "Água Sanitária",
         "Esponja",
         "Álcool 70%",
+    ],
+    "Bebidas":[
+        "Agua",
+        "Agua com gas",
+        
+
     ],
     "Embalagens": [
         "Saco 5kg",
