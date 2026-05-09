@@ -29,17 +29,17 @@ PRODUCTS = {
         "Óleo 900ml",
     ],
     "Geladeira": [
-        "Leite 1L",
-        "Manteiga 200g",
+        "Açucar",
+        "Açai",
         "Queijo Mussarela",
         "Presunto 200g",
         "Iogurte",
         "Margarina",
     ],
-    "Limpeza": [
-        "Detergente",
-        "Sabão em Pó",
-        "Desinfetante",
+    "HortFrut": [
+        "Abacaxi",
+        "Abobrinha",
+        "",
         "Água Sanitária",
         "Esponja",
         "Álcool 70%",
@@ -52,13 +52,14 @@ PRODUCTS = {
         "Copo 200ml",
         "Sacola Plástica",
     ],
-    "Hortfrut": [
-        "Manjericão",
-        "Tomate",
-        "Cebola",
-        "Alho",
+    "Limpeza": [
+        "Detergente",
+        "Saco de lixo",
+        "Esponja",
+        "Alcool",
     ],
     "Outros": [
-        # Adicione aqui produtos avulsos
+        "Abridor",
+        
     ],
 }
