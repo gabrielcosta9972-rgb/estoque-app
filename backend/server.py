@@ -120,12 +120,14 @@ class Product(BaseModel):
     id: str
     name: str
     category: str
+    unit: str = "un"
 
 
 class OrderItem(BaseModel):
     product_id: str
     name: str
     quantity: int
+    unit: str = "un"
 
 
 class CreateOrderRequest(BaseModel):
@@ -322,27 +324,44 @@ async def on_startup():
     await db.orders.create_index("created_at")
 
     # Sincroniza catálogo de produtos com products_config.py
-    # - Adiciona novos
-    # - Remove os que sumiram da lista
-    desired = {(cat, name.strip()) for cat, names in SEED_PRODUCTS.items() for name in names if name.strip()}
-    existing_docs = await db.products.find({}, {"_id": 0}).to_list(2000)
-    existing_set = {(d["category"], d["name"]) for d in existing_docs}
+    # Formato: "Nome | unidade"  (ex: "Tomate | kg"). Sem '|' = "un".
+    def parse_entry(raw: str):
+        s = raw.strip()
+        if "|" in s:
+            name, unit = s.rsplit("|", 1)
+            return name.strip(), unit.strip() or "un"
+        return s, "un"
 
-    to_insert = desired - existing_set
-    to_delete = existing_set - desired
+    desired = {}
+    for cat, items in SEED_PRODUCTS.items():
+        for raw in items:
+            if not raw or not raw.strip():
+                continue
+            name, unit = parse_entry(raw)
+            desired[(cat, name)] = unit
+
+    existing_docs = await db.products.find({}, {"_id": 0}).to_list(2000)
+    existing_map = {(d["category"], d["name"]): d.get("unit", "un") for d in existing_docs}
+
+    to_insert = [(cat, name, unit) for (cat, name), unit in desired.items() if (cat, name) not in existing_map]
+    to_delete = [(cat, name) for (cat, name) in existing_map.keys() if (cat, name) not in desired]
+    to_update = [(cat, name, unit) for (cat, name), unit in desired.items()
+                 if (cat, name) in existing_map and existing_map[(cat, name)] != unit]
 
     if to_insert:
         await db.products.insert_many([
-            {"id": str(uuid.uuid4()), "category": cat, "name": name}
-            for (cat, name) in to_insert
+            {"id": str(uuid.uuid4()), "category": cat, "name": name, "unit": unit}
+            for (cat, name, unit) in to_insert
         ])
     if to_delete:
         await db.products.delete_many({
             "$or": [{"category": cat, "name": name} for (cat, name) in to_delete]
         })
+    for (cat, name, unit) in to_update:
+        await db.products.update_one({"category": cat, "name": name}, {"$set": {"unit": unit}})
 
-    logger.info("Sync produtos: +%d novos, -%d removidos, %d total",
-                len(to_insert), len(to_delete), len(desired))
+    logger.info("Sync produtos: +%d novos, -%d removidos, ~%d atualizados, %d total",
+                len(to_insert), len(to_delete), len(to_update), len(desired))
 
 
 @app.on_event("shutdown")
