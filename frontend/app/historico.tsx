@@ -1,0 +1,223 @@
+import React, { useCallback, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "expo-router";
+import { Trash2, ClipboardList } from "lucide-react-native";
+import ScreenHeader from "../src/ScreenHeader";
+import { api, formatApiError } from "../src/api";
+import { useAuth } from "../src/auth";
+import { colors, spacing, radius } from "../src/theme";
+
+type Order = {
+  id: string;
+  store: string;
+  store_label: string;
+  items: { product_id: string; name: string; quantity: number }[];
+  status: string;
+  created_by_name?: string | null;
+  received_by_name?: string | null;
+  created_at: string;
+  received_at?: string | null;
+};
+
+export default function Historico() {
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isReceber = user?.role === "receber";
+
+  const load = useCallback(async () => {
+    try {
+      const { data } = await api.get<Order[]>("/history");
+      setOrders(data);
+      setError(null);
+    } catch (e) {
+      setError(formatApiError(e));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      load();
+    }, [load])
+  );
+
+  const onClear = () => {
+    const msg = isReceber
+      ? "Isto vai apagar TODOS os pedidos já recebidos (compartilhado entre todos os recebedores). Confirmar?"
+      : "Isto vai apagar todos os seus pedidos já recebidos. Os que ainda estão em via continuam. Confirmar?";
+
+    Alert.alert("Limpar histórico", msg, [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Limpar",
+        style: "destructive",
+        onPress: async () => {
+          setClearing(true);
+          try {
+            const { data } = await api.delete<{ deleted: number }>("/history");
+            Alert.alert("Pronto", `${data.deleted} pedido(s) removido(s) do histórico`);
+            load();
+          } catch (e) {
+            Alert.alert("Erro", formatApiError(e));
+          } finally {
+            setClearing(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const formatDate = (iso?: string | null) => {
+    if (!iso) return "";
+    try {
+      const d = new Date(iso);
+      return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "";
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safe} testID="historico-screen">
+      <ScreenHeader
+        title="Histórico"
+        subtitle={isReceber ? "Pedidos recebidos (compartilhado)" : "Seus pedidos"}
+        color={colors.textPrimary}
+      />
+
+      {loading ? (
+        <ActivityIndicator color={colors.blue} style={{ marginTop: 32 }} />
+      ) : error ? (
+        <Text style={styles.error}>{error}</Text>
+      ) : orders.length === 0 ? (
+        <View style={styles.empty}>
+          <ClipboardList size={48} color={colors.textDisabled} />
+          <Text style={styles.emptyText}>Nenhum pedido no histórico</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={orders}
+          keyExtractor={(o) => o.id}
+          contentContainerStyle={{ padding: spacing.md, paddingTop: 0, paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                load();
+              }}
+            />
+          }
+          renderItem={({ item }) => {
+            const recebido = item.status === "recebido";
+            return (
+              <View style={styles.card} testID={`historico-item-${item.id}`}>
+                <View style={styles.cardHeader}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardTitle}>{item.store_label}</Text>
+                    <Text style={styles.cardMeta}>
+                      {item.created_by_name ? `${item.created_by_name} · ` : ""}{formatDate(item.created_at)}
+                    </Text>
+                  </View>
+                  <View style={[styles.tag, recebido ? styles.tagOk : styles.tagPending]}>
+                    <Text style={[styles.tagText, recebido ? { color: colors.green } : { color: colors.orange }]}>
+                      {recebido ? "RECEBIDO" : "EM VIA"}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.divider} />
+                {item.items.map((it) => (
+                  <View key={it.product_id} style={styles.itemRow}>
+                    <Text style={styles.itemName} numberOfLines={2}>{it.name}</Text>
+                    <Text style={styles.itemQty}>x{it.quantity}</Text>
+                  </View>
+                ))}
+                {recebido && item.received_by_name ? (
+                  <Text style={styles.receivedInfo}>Recebido por {item.received_by_name} · {formatDate(item.received_at)}</Text>
+                ) : null}
+              </View>
+            );
+          }}
+        />
+      )}
+
+      {orders.length > 0 ? (
+        <TouchableOpacity
+          testID="clear-history-btn"
+          style={[styles.clearBtn, clearing && { opacity: 0.6 }]}
+          onPress={onClear}
+          disabled={clearing}
+          activeOpacity={0.85}
+        >
+          {clearing ? (
+            <ActivityIndicator color={colors.inverse} />
+          ) : (
+            <>
+              <Trash2 size={18} color={colors.inverse} />
+              <Text style={styles.clearText}>Limpar histórico</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      ) : null}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.bg },
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  cardTitle: { fontSize: 16, fontWeight: "700", color: colors.textPrimary },
+  cardMeta: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  tag: { borderRadius: radius.tag, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1 },
+  tagOk: { backgroundColor: colors.greenSoft, borderColor: colors.greenBorder },
+  tagPending: { backgroundColor: colors.orangeSoft, borderColor: colors.orangeBorder },
+  tagText: { fontWeight: "700", fontSize: 11, letterSpacing: 0.6 },
+  divider: { height: 1, backgroundColor: colors.borderLight, marginVertical: spacing.sm },
+  itemRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
+  itemName: { flex: 1, fontSize: 14, color: colors.textPrimary, marginRight: spacing.sm },
+  itemQty: { fontSize: 14, fontWeight: "700", color: colors.purple },
+  receivedInfo: { fontSize: 12, color: colors.textSecondary, marginTop: spacing.sm, fontStyle: "italic" },
+  empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg },
+  emptyText: { color: colors.textSecondary, fontSize: 16, marginTop: spacing.md },
+  error: { color: colors.danger, padding: spacing.md, textAlign: "center" },
+  clearBtn: {
+    position: "absolute",
+    bottom: spacing.lg,
+    left: spacing.md,
+    right: spacing.md,
+    backgroundColor: colors.danger,
+    minHeight: 52,
+    borderRadius: radius.button,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+  },
+  clearText: { color: colors.inverse, fontWeight: "700", fontSize: 15, marginLeft: 8, letterSpacing: 0.3 },
+});

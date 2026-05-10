@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ShoppingCart, PackageOpen, LogOut, User, Phone } from "lucide-react-native";
+import { ShoppingCart, PackageOpen, LogOut, User, Phone, ClipboardList } from "lucide-react-native";
 import { useAuth } from "../src/auth";
 import { colors, spacing, radius } from "../src/theme";
 
@@ -84,6 +84,23 @@ export default function Home() {
             </View>
           </TouchableOpacity>
         ) : null}
+
+        <TouchableOpacity
+          testID="action-historico"
+          style={[styles.actionCard, { borderColor: colors.borderLight, backgroundColor: colors.card }]}
+          onPress={() => router.push("/historico")}
+          activeOpacity={0.85}
+        >
+          <View style={[styles.iconBox, { backgroundColor: colors.textPrimary }]}>
+            <ClipboardList size={28} color={colors.inverse} />
+          </View>
+          <View style={styles.actionTexts}>
+            <Text style={[styles.actionTitle, { color: colors.textPrimary }]}>HISTÓRICO</Text>
+            <Text style={styles.actionDesc}>
+              {user.role === "receber" ? "Pedidos recebidos (compartilhado)" : "Seus pedidos anteriores"}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

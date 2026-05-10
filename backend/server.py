@@ -307,6 +307,38 @@ async def receive_order(order_id: str, user: dict = Depends(get_current_user)):
     return Order(**order)
 
 
+@api_router.get("/history", response_model=List[Order])
+async def get_history(user: dict = Depends(get_current_user)):
+    """
+    Histórico:
+    - Quem PEDE: vê seus próprios pedidos (em_via + recebido).
+    - Quem RECEBE: vê histórico compartilhado de TODOS os pedidos JÁ RECEBIDOS.
+    """
+    user_role = user.get("role") or "pedir"
+    if user_role == "receber":
+        query = {"status": "recebido"}
+    else:
+        query = {"created_by": user["id"]}
+    orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return [Order(**o) for o in orders]
+
+
+@api_router.delete("/history")
+async def clear_history(user: dict = Depends(get_current_user)):
+    """
+    Limpar histórico:
+    - Quem PEDE: apaga seus próprios pedidos JÁ RECEBIDOS (mantém os em via).
+    - Quem RECEBE: apaga TODOS os pedidos JÁ RECEBIDOS (compartilhado).
+    """
+    user_role = user.get("role") or "pedir"
+    if user_role == "receber":
+        query = {"status": "recebido"}
+    else:
+        query = {"created_by": user["id"], "status": "recebido"}
+    res = await db.orders.delete_many(query)
+    return {"deleted": res.deleted_count}
+
+
 @api_router.get("/")
 async def root():
     return {"app": "Estoque API", "status": "ok"}

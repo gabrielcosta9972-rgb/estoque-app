@@ -1,32 +1,40 @@
-"""
-========================================================================
-   EDITE ESTE ARQUIVO PARA ADICIONAR / REMOVER / RENOMEAR PRODUTOS
-========================================================================
-
-Como funciona:
-  - Cada chave abaixo é uma CATEGORIA (deve existir em CATEGORIES no server.py).
-  - Cada item da lista é o NOME do produto que aparecerá no app.
-  - Toda vez que o servidor reinicia, o banco é sincronizado automaticamente:
-      * Produto novo na lista  -> CRIADO no banco
-      * Produto removido       -> APAGADO do banco
-      * Produto renomeado      -> APAGA o antigo e CRIA o novo
-  - Pedidos antigos NÃO são afetados (os nomes ficam guardados no pedido).
-
-CUIDADO:
-  - Cada nome entre aspas "..." e separado por vírgula.
-  - Sem vírgula sozinha depois do colchete final ].
-========================================================================
-"""
-
 PRODUCTS = {
     "Mercearia": [
         "Atum",
-        "Feijão 1kg",
-        "Açúcar 1kg",
-        "Sal 1kg",
-        "Macarrão 500g",
-        "Farinha 1kg",
+        "Azeitona",
+        "Açúcar",
+        "Sal",
+        "Azeite",
+        "Farinha 5kg",
         "Óleo 900ml",
+        "Barbecue",
+        "Batata Palha",
+        "Amendoim",
+        "Farofa de Amendoim",
+        "Oreo",
+        "Bombom",
+        "Café",
+        "Canela em Pó",
+        "Cereja",
+        "Champignom",
+        "Chocolate Cx",
+        "Chocolate un",
+        "Chocolate Branco Cx",
+        "Chocolate Branco un",
+        "Coco ralado",
+        "Creme de Leite cx",
+        "Creme de Leite un",
+        "Doce de Leite cx",
+        "Doce de Leite un",
+        "Doritos",
+
+
+
+
+
+
+
+
     ],
     "Resfriados": [
         "Açucar",
@@ -35,37 +43,81 @@ PRODUCTS = {
         "Apresuntado",
         "Bacon",
         "Atum",
+        "Brocolis",
+        "Cebola",
+        "Cebolinha 100g",
+        "Cheddar cx",
+        "Cheddar un",
+        "Champignom",
+        "Cream Chese cx",
+        "Cream chese un",
+        "Costela",
+        "Ervilha",
+
+
+    
+
     ],
     "Hortfrut": [
         "Abacaxi",
         "Abobrinha",
         "Alecrim",
-        "Água Sanitária",
-        "Esponja",
+        "",
+        "Escarola",
         "Alface",
+        "Banana 1kg",
+        "Berinjela",
+        "Coentro",
+
     ],
     "Bebidas":[
         "Água",
         "Água com gas",
+        "Cachaça",
+        "Cerveja",
+        "Coca cola 2l zero",
+        "Coca cola 2l",
+        "Red Bull Fd",
+        "Reed bull un",
+        "Fanta LT"
+
 
 
     ],
     "Embalagens": [
-        "Saco 5kg",
-        "Saco 10kg",
-        "Marmita P",
-        "Marmita G",
+        "Bobina p",
+        "Bobina M",
+        "Bobina G",
+        "Saco de lixo 100l",
         "Copo 200ml",
         "Sacola Plástica",
+        "Caixa de Pizza G 50un",
+        "Caixa de Pizza B 50un",
+
+    
     ],
     "Limpeza": [
         "Detergente",
         "Saco de lixo",
         "Esponja",
         "Álcool",
+        "Cloro 5L",
+        "Desinfetate",
+        "Detergente",
+
+
     ],
     "Outros": [
         "Abridor",
+        "Avental",
+        "Balança",
+        "Borrifador",
+        "Canudo",
+        "Colher",
+        "Espatula",
+        ""
+
+
         
     ],
 }
