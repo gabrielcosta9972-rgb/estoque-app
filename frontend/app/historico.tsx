@@ -84,6 +84,18 @@ export default function Historico() {
   };
 
   const onClear = () => {
+    const msg = isReceber
+      ? "Isto vai apagar TODOS os pedidos já recebidos (compartilhado entre todos os recebedores). Confirmar?"
+      : "Isto vai apagar todos os seus pedidos já recebidos. Os que ainda estão em via continuam. Confirmar?";
+
+    if (Platform.OS === "web") {
+      // No navegador, Alert.alert e Modal podem falhar; usa confirm() nativo do browser
+      if (window.confirm(msg)) {
+        doClear();
+      }
+      return;
+    }
+    // No mobile, usa o modal customizado
     setConfirmOpen(true);
   };
 
