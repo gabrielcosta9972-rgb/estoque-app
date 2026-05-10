@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Platform,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
@@ -37,6 +39,8 @@ export default function Historico() {
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const isReceber = user?.role === "receber";
 
   const load = useCallback(async () => {
@@ -59,30 +63,28 @@ export default function Historico() {
     }, [load])
   );
 
-  const onClear = () => {
-    const msg = isReceber
-      ? "Isto vai apagar TODOS os pedidos já recebidos (compartilhado entre todos os recebedores). Confirmar?"
-      : "Isto vai apagar todos os seus pedidos já recebidos. Os que ainda estão em via continuam. Confirmar?";
+  const doClear = async () => {
+    setConfirmOpen(false);
+    setClearing(true);
+    try {
+      const { data } = await api.delete<{ deleted: number }>("/history");
+      if (Platform.OS === "web") {
+        window.alert(`${data.deleted} pedido(s) removido(s) do histórico`);
+      } else {
+        Alert.alert("Pronto", `${data.deleted} pedido(s) removido(s) do histórico`);
+      }
+      load();
+    } catch (e) {
+      const msg = formatApiError(e);
+      if (Platform.OS === "web") window.alert(`Erro: ${msg}`);
+      else Alert.alert("Erro", msg);
+    } finally {
+      setClearing(false);
+    }
+  };
 
-    Alert.alert("Limpar histórico", msg, [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Limpar",
-        style: "destructive",
-        onPress: async () => {
-          setClearing(true);
-          try {
-            const { data } = await api.delete<{ deleted: number }>("/history");
-            Alert.alert("Pronto", `${data.deleted} pedido(s) removido(s) do histórico`);
-            load();
-          } catch (e) {
-            Alert.alert("Erro", formatApiError(e));
-          } finally {
-            setClearing(false);
-          }
-        },
-      },
-    ]);
+  const onClear = () => {
+    setConfirmOpen(true);
   };
 
   const formatDate = (iso?: string | null) => {
@@ -177,6 +179,42 @@ export default function Historico() {
           )}
         </TouchableOpacity>
       ) : null}
+
+      <Modal
+        visible={confirmOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setConfirmOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Limpar histórico</Text>
+            <Text style={styles.modalMsg}>
+              {isReceber
+                ? "Isto vai apagar TODOS os pedidos já recebidos (compartilhado entre todos os recebedores). Confirmar?"
+                : "Isto vai apagar todos os seus pedidos já recebidos. Os que ainda estão em via continuam. Confirmar?"}
+            </Text>
+            <View style={styles.modalRow}>
+              <TouchableOpacity
+                testID="cancel-clear-btn"
+                style={styles.modalBtnCancel}
+                onPress={() => setConfirmOpen(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalBtnCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="confirm-clear-btn"
+                style={styles.modalBtnDanger}
+                onPress={doClear}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalBtnDangerText}>Limpar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -220,4 +258,40 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   clearText: { color: colors.inverse, fontWeight: "700", fontSize: 15, marginLeft: 8, letterSpacing: 0.3 },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.lg,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor: colors.card,
+    borderRadius: radius.card,
+    padding: spacing.lg,
+  },
+  modalTitle: { fontSize: 18, fontWeight: "800", color: colors.textPrimary, marginBottom: spacing.sm },
+  modalMsg: { fontSize: 14, color: colors.textSecondary, lineHeight: 20, marginBottom: spacing.lg },
+  modalRow: { flexDirection: "row", justifyContent: "flex-end", gap: spacing.sm },
+  modalBtnCancel: {
+    minHeight: 44,
+    paddingHorizontal: spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.button,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+  },
+  modalBtnCancelText: { color: colors.textPrimary, fontWeight: "600", fontSize: 14 },
+  modalBtnDanger: {
+    minHeight: 44,
+    paddingHorizontal: spacing.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.button,
+    backgroundColor: colors.danger,
+  },
+  modalBtnDangerText: { color: colors.inverse, fontWeight: "700", fontSize: 14 },
 });
