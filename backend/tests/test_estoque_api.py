@@ -44,7 +44,7 @@ def user_b(session):
     return {"token": data["token"], "user": data["user"], "password": "senha123", "phone": phone}
 
 
-# ---------- Auth ----------
+
 class TestAuth:
     def test_register_returns_token_and_user(self, user_a):
         assert user_a["token"]
@@ -80,7 +80,7 @@ class TestAuth:
             assert r.status_code == 401, f"{path} should require auth"
 
 
-# ---------- Catalog ----------
+
 class TestCatalog:
     def test_stores_returns_5_expected(self, session, user_a):
         r = session.get(f"{API}/stores", headers={"Authorization": f"Bearer {user_a['token']}"})
@@ -104,10 +104,10 @@ class TestCatalog:
         assert all("id" in p and "name" in p for p in prods)
 
 
-# ---------- Orders ----------
+
 class TestOrders:
     def test_full_order_flow(self, session, user_a, user_b):
-        # 1) get a couple of products
+        
         ph = {"Authorization": f"Bearer {user_a['token']}"}
         prods = session.get(f"{API}/products", params={"category": "Secos"}, headers=ph).json()
         assert len(prods) >= 2
@@ -115,7 +115,7 @@ class TestOrders:
             {"product_id": prods[0]["id"], "name": prods[0]["name"], "quantity": 2},
             {"product_id": prods[1]["id"], "name": prods[1]["name"], "quantity": 1},
         ]
-        # 2) create order as A
+        
         r = session.post(f"{API}/orders", json={"store": "Castelo", "items": items}, headers=ph)
         assert r.status_code == 200, r.text
         order = r.json()
@@ -124,16 +124,16 @@ class TestOrders:
         assert order["created_by_name"] == "TEST_UserA"
         order_id = order["id"]
 
-        # 3) list em_via for Castelo - must contain it
+        
         r = session.get(f"{API}/orders", params={"store": "Castelo", "status": "em_via"}, headers=ph)
         assert r.status_code == 200
         assert any(o["id"] == order_id for o in r.json())
 
-        # 4) different store filter must not include
+        
         r = session.get(f"{API}/orders", params={"store": "Mesc", "status": "em_via"}, headers=ph)
         assert all(o["id"] != order_id for o in r.json())
 
-        # 5) user B receives the order
+        
         ph_b = {"Authorization": f"Bearer {user_b['token']}"}
         r = session.post(f"{API}/orders/{order_id}/receive", headers=ph_b)
         assert r.status_code == 200, r.text
@@ -142,7 +142,7 @@ class TestOrders:
         assert rec["received_by_name"] == "TEST_UserB"
         assert rec["received_at"] is not None
 
-        # 6) Cannot receive again
+        
         r = session.post(f"{API}/orders/{order_id}/receive", headers=ph_b)
         assert r.status_code == 400
 
