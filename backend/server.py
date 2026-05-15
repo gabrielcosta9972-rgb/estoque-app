@@ -46,7 +46,7 @@ STORE_LABELS = {
 }
 CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Embalagens", "Hortifruti", "Bebidas", "Doces", "Outros"]
 
-# Nomes antigos/errados que podem ter ficado salvos no banco ou vindo do frontend.
+
 CATEGORY_ALIASES = {
     "Hortfrut": "Hortifruti",
     "Hortifrut": "Hortifruti",
@@ -104,7 +104,7 @@ async def get_current_user(creds: Optional[HTTPAuthorizationCredentials] = Depen
         raise HTTPException(status_code=401, detail="Token inválido")
 
 
-# ----- Models -----
+
 class RegisterRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=80)
     phone: str = Field(..., min_length=8, max_length=20)
@@ -148,8 +148,7 @@ class CreateOrderRequest(BaseModel):
 
 
 class ReceiveOrderRequest(BaseModel):
-    # Itens alterados pelo recebedor antes de confirmar.
-    # Exemplo: pediu 10, mas só tinha 4 no estoque.
+
     items: Optional[List[OrderItem]] = None
     adjustment_note: Optional[str] = None
 
@@ -180,7 +179,7 @@ def require_role(user: dict, role: str):
         )
 
 
-# ----- Auth endpoints -----
+
 @api_router.post("/auth/register", response_model=AuthResponse)
 async def register(payload: RegisterRequest):
     phone = normalize_phone(payload.phone)
@@ -236,7 +235,7 @@ async def me(user: dict = Depends(get_current_user)):
     )
 
 
-# ----- Catalog endpoints -----
+
 @api_router.get("/stores")
 async def list_stores(_: dict = Depends(get_current_user)):
     return [{"id": s, "label": STORE_LABELS[s]} for s in STORES]
@@ -244,7 +243,7 @@ async def list_stores(_: dict = Depends(get_current_user)):
 
 @api_router.get("/categories")
 async def list_categories(_: dict = Depends(get_current_user)):
-    # Sempre normaliza para "Hortifruti" (corrige o nome antigo "Hortfrut").
+
     return [normalize_category(c) or c for c in CATEGORIES]
 
 
@@ -262,7 +261,7 @@ async def list_products(category: Optional[str] = None, _: dict = Depends(get_cu
     ]
 
 
-# ----- Orders -----
+
 @api_router.post("/orders", response_model=Order)
 async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_current_user)):
     require_role(user, "pedir")
@@ -307,7 +306,7 @@ async def list_orders(
     if status:
         query["status"] = status
     if mine or user_role == "pedir":
-        # Quem PEDE só vê seus próprios pedidos
+        
         query["created_by"] = user["id"]
     orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
     return [Order(**o) for o in orders]
@@ -319,15 +318,7 @@ async def receive_order(
     payload: Optional[ReceiveOrderRequest] = None,
     user: dict = Depends(get_current_user),
 ):
-    """
-    Confirma o recebimento de um pedido.
 
-    REGRA CRÍTICA (fix do bug de alteração):
-    - Se o recebedor mandou `items` no payload, esses são os ITENS FINAIS (alterados).
-      Eles substituem completamente o campo `items` do pedido no banco.
-    - Os itens ORIGINAIS pedidos são salvos em `original_items` apenas para histórico.
-    - A tela "Entregue" SEMPRE lê de `items`, então passa a mostrar o resultado final.
-    """
     require_role(user, "receber")
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not order:
@@ -338,7 +329,7 @@ async def receive_order(
     now = datetime.now(timezone.utc)
     original_items: List[dict] = list(order.get("items") or [])
 
-    # Default: se o recebedor não mandou alterações, os itens entregues == itens pedidos.
+    
     final_items: List[dict] = [dict(it) for it in original_items]
     adjustment_note: Optional[str] = None
     altered = False  # marca se o recebedor de fato mandou um payload com items
@@ -346,7 +337,7 @@ async def receive_order(
     if payload and payload.items is not None:
         if not payload.items:
             raise HTTPException(status_code=400, detail="O pedido precisa ter pelo menos 1 item")
-        # SUBSTITUI completamente os itens pelos itens finais que o recebedor enviou.
+    
         final_items = [
             {
                 "product_id": str(item.product_id),
@@ -366,7 +357,7 @@ async def receive_order(
     original_by_product = {item_key(item): item for item in original_items}
     final_by_product = {item_key(item): item for item in final_items}
 
-    # Detecta se houve qualquer diferença real entre o pedido original e o entregue.
+    
     has_adjustments = bool(adjustment_note)
     if not has_adjustments:
         has_adjustments = set(original_by_product.keys()) != set(final_by_product.keys())
@@ -379,9 +370,9 @@ async def receive_order(
 
     update_doc = {
         "status": "recebido",
-        # 👇 garante que o pedido entregue mostra os ITENS FINAIS alterados
+        
         "items": final_items,
-        # 👇 só guarda o original quando houve alteração de fato
+        
         "original_items": original_items if (altered and has_adjustments) else None,
         "adjustment_note": adjustment_note,
         "has_adjustments": has_adjustments,
@@ -397,42 +388,41 @@ async def receive_order(
 
 @api_router.get("/history", response_model=List[Order])
 async def get_history(user: dict = Depends(get_current_user)):
-    """
-    Histórico:
-    - Quem PEDE: vê seus próprios pedidos (em_via + recebido).
-    - Quem RECEBE: vê histórico compartilhado de TODOS os pedidos JÁ RECEBIDOS.
-    """
+
     user_role = user.get("role") or "pedir"
-    if user_role == "receber":
-        query = {"status": "recebido"}
+    if user_role =="receber":
+        query = {
+            "status": "recebido",
+            "hidden_from_receiver": {"$ne": True}
+        }
     else:
-        query = {"created_by": user["id"]}
+        query = {
+            "created_by": user["id"],
+            "hidden_from_sender": {"$ne": True}
+        }
     orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return [Order(**o) for o in orders]
 
 
 @api_router.delete("/history")
 async def clear_history(user: dict = Depends(get_current_user)):
-    """
-    Limpar histórico:
-    - Quem PEDE: apaga seus próprios pedidos JÁ RECEBIDOS (mantém os em via).
-    - Quem RECEBE: apaga TODOS os pedidos JÁ RECEBIDOS (compartilhado).
-    """
     user_role = user.get("role") or "pedir"
-    if user_role == "receber":
+    if user_role =="receber":
         query = {"status": "recebido"}
+        update = {"$set": {"hidden_from_receiver": True}}
     else:
-        query = {"created_by": user["id"], "status": "recebido"}
-    res = await db.orders.delete_many(query)
-    return {"deleted": res.deleted_count}
+        query = {"created_by": user ["id"], "status": "recebido"}
+        update = {"$set": {"hidden_from_sender": True}}
 
+    res = await db.orders.update_many(query, update)
+    return {"hidden": res.modified_count}
 
 @api_router.get("/")
 async def root():
     return {"app": "Estoque API", "status": "ok"}
 
 
-# ----- Startup -----
+
 @app.on_event("startup")
 async def on_startup():
     await db.users.create_index("phone", unique=True)
@@ -441,15 +431,12 @@ async def on_startup():
     await db.orders.create_index("status")
     await db.orders.create_index("created_at")
 
-    # Corrige produtos antigos que ficaram salvos como Hortfrut/Hortifrut/hortifrt no banco
     await db.products.update_many(
         {"category": {"$in": ["Hortfrut", "Hortifrut", "hortifrt"]}},
         {"$set": {"category": "Hortifruti"}},
     )
 
-    # Sincroniza catálogo de produtos com products_config.py
-    # - Adiciona novos
-    # - Remove os que sumiram da lista
+
     desired = {(cat, name.strip()) for cat, names in SEED_PRODUCTS.items() for name in names if name.strip()}
     existing_docs = await db.products.find({}, {"_id": 0}).to_list(2000)
     existing_set = {(d["category"], d["name"]) for d in existing_docs}
@@ -476,7 +463,7 @@ async def shutdown_db_client():
     client.close()
 
 
-# ----- Wire up -----
+
 app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
