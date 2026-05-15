@@ -44,7 +44,21 @@ STORE_LABELS = {
     "Baeta": "Baeta",
     "Producao": "Produção",
 }
-CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Embalagens", "Hortfrut", "Bebidas", "Outros"]
+CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Embalagens", "Hortifruti", "Bebidas", "Doces", "Outros"]
+
+# Nomes antigos/errados que podem ter ficado salvos no banco ou vindo do frontend.
+CATEGORY_ALIASES = {
+    "Hortfrut": "Hortifruti",
+    "Hortifrut": "Hortifruti",
+    "hortifrt": "Hortifruti",
+    "Hortifruti": "Hortifruti",
+}
+
+
+def normalize_category(category: Optional[str]) -> Optional[str]:
+    if not category:
+        return category
+    return CATEGORY_ALIASES.get(category, category)
 
 
 from products_config import PRODUCTS as SEED_PRODUCTS
@@ -125,7 +139,7 @@ class Product(BaseModel):
 class OrderItem(BaseModel):
     product_id: str
     name: str
-    quantity: int
+    quantity: int = Field(..., ge=0)
 
 
 class CreateOrderRequest(BaseModel):
@@ -133,11 +147,21 @@ class CreateOrderRequest(BaseModel):
     items: List[OrderItem]
 
 
+class ReceiveOrderRequest(BaseModel):
+    # Itens alterados pelo recebedor antes de confirmar.
+    # Exemplo: pediu 10, mas só tinha 4 no estoque.
+    items: Optional[List[OrderItem]] = None
+    adjustment_note: Optional[str] = None
+
+
 class Order(BaseModel):
     id: str
     store: str
     store_label: str
     items: List[OrderItem]
+    original_items: Optional[List[OrderItem]] = None
+    adjustment_note: Optional[str] = None
+    has_adjustments: bool = False
     status: str  # 'em_via' or 'recebido'
     created_by: str
     created_by_name: Optional[str] = None
@@ -220,16 +244,22 @@ async def list_stores(_: dict = Depends(get_current_user)):
 
 @api_router.get("/categories")
 async def list_categories(_: dict = Depends(get_current_user)):
-    return CATEGORIES
+    # Sempre normaliza para "Hortifruti" (corrige o nome antigo "Hortfrut").
+    return [normalize_category(c) or c for c in CATEGORIES]
 
 
 @api_router.get("/products", response_model=List[Product])
 async def list_products(category: Optional[str] = None, _: dict = Depends(get_current_user)):
     query = {}
     if category:
-        query["category"] = category
+        normalized_category = normalize_category(category)
+        aliases = [old for old, new in CATEGORY_ALIASES.items() if new == normalized_category]
+        query["category"] = {"$in": list(set([normalized_category, *aliases]))}
     products = await db.products.find(query, {"_id": 0}).sort("name", 1).to_list(500)
-    return [Product(**p) for p in products]
+    return [
+        Product(**{**p, "category": normalize_category(p.get("category")) or p.get("category")})
+        for p in products
+    ]
 
 
 # ----- Orders -----
@@ -247,6 +277,9 @@ async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_cur
         "store": payload.store,
         "store_label": STORE_LABELS[payload.store],
         "items": [item.model_dump() for item in payload.items],
+        "original_items": None,
+        "adjustment_note": None,
+        "has_adjustments": False,
         "status": "em_via",
         "created_by": user["id"],
         "created_by_name": user["name"],
@@ -281,29 +314,84 @@ async def list_orders(
 
 
 @api_router.post("/orders/{order_id}/receive", response_model=Order)
-async def receive_order(order_id: str, user: dict = Depends(get_current_user)):
+async def receive_order(
+    order_id: str,
+    payload: Optional[ReceiveOrderRequest] = None,
+    user: dict = Depends(get_current_user),
+):
+    """
+    Confirma o recebimento de um pedido.
+
+    REGRA CRÍTICA (fix do bug de alteração):
+    - Se o recebedor mandou `items` no payload, esses são os ITENS FINAIS (alterados).
+      Eles substituem completamente o campo `items` do pedido no banco.
+    - Os itens ORIGINAIS pedidos são salvos em `original_items` apenas para histórico.
+    - A tela "Entregue" SEMPRE lê de `items`, então passa a mostrar o resultado final.
+    """
     require_role(user, "receber")
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido não encontrado")
     if order["status"] == "recebido":
         raise HTTPException(status_code=400, detail="Pedido já recebido")
+
     now = datetime.now(timezone.utc)
-    await db.orders.update_one(
-        {"id": order_id},
-        {"$set": {
-            "status": "recebido",
-            "received_by": user["id"],
-            "received_by_name": user["name"],
-            "received_at": now,
-        }},
-    )
-    order.update({
+    original_items: List[dict] = list(order.get("items") or [])
+
+    # Default: se o recebedor não mandou alterações, os itens entregues == itens pedidos.
+    final_items: List[dict] = [dict(it) for it in original_items]
+    adjustment_note: Optional[str] = None
+    altered = False  # marca se o recebedor de fato mandou um payload com items
+
+    if payload and payload.items is not None:
+        if not payload.items:
+            raise HTTPException(status_code=400, detail="O pedido precisa ter pelo menos 1 item")
+        # SUBSTITUI completamente os itens pelos itens finais que o recebedor enviou.
+        final_items = [
+            {
+                "product_id": str(item.product_id),
+                "name": item.name,
+                "quantity": int(item.quantity) if item.quantity is not None else 0,
+            }
+            for item in payload.items
+        ]
+        altered = True
+
+    if payload and payload.adjustment_note:
+        adjustment_note = (payload.adjustment_note.strip()[:500]) or None
+
+    def item_key(item: dict) -> str:
+        return str(item.get("product_id") or item.get("name") or "")
+
+    original_by_product = {item_key(item): item for item in original_items}
+    final_by_product = {item_key(item): item for item in final_items}
+
+    # Detecta se houve qualquer diferença real entre o pedido original e o entregue.
+    has_adjustments = bool(adjustment_note)
+    if not has_adjustments:
+        has_adjustments = set(original_by_product.keys()) != set(final_by_product.keys())
+    if not has_adjustments:
+        for product_id, original in original_by_product.items():
+            delivered = final_by_product.get(product_id)
+            if not delivered or int(original.get("quantity", 0)) != int(delivered.get("quantity", 0)):
+                has_adjustments = True
+                break
+
+    update_doc = {
         "status": "recebido",
+        # 👇 garante que o pedido entregue mostra os ITENS FINAIS alterados
+        "items": final_items,
+        # 👇 só guarda o original quando houve alteração de fato
+        "original_items": original_items if (altered and has_adjustments) else None,
+        "adjustment_note": adjustment_note,
+        "has_adjustments": has_adjustments,
         "received_by": user["id"],
         "received_by_name": user["name"],
         "received_at": now,
-    })
+    }
+
+    await db.orders.update_one({"id": order_id}, {"$set": update_doc})
+    order.update(update_doc)
     return Order(**order)
 
 
@@ -352,6 +440,12 @@ async def on_startup():
     await db.orders.create_index("store")
     await db.orders.create_index("status")
     await db.orders.create_index("created_at")
+
+    # Corrige produtos antigos que ficaram salvos como Hortfrut/Hortifrut/hortifrt no banco
+    await db.products.update_many(
+        {"category": {"$in": ["Hortfrut", "Hortifrut", "hortifrt"]}},
+        {"$set": {"category": "Hortifruti"}},
+    )
 
     # Sincroniza catálogo de produtos com products_config.py
     # - Adiciona novos

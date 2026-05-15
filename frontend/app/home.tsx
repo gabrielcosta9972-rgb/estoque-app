@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ShoppingCart, PackageOpen, LogOut, User, Phone, ClipboardList } from "lucide-react-native";
+import { ShoppingCart, PackageOpen, LogOut, User, Phone, ClipboardList, CheckCircle2 } from "lucide-react-native";
 import { useAuth } from "../src/auth";
 import { colors, spacing, radius } from "../src/theme";
 
@@ -101,6 +101,23 @@ export default function Home() {
             </Text>
           </View>
         </TouchableOpacity>
+
+        {user.role === "pedir" ? (
+          <TouchableOpacity
+            testID="action-entregue"
+            style={[styles.actionCard, { borderColor: colors.greenBorder, backgroundColor: colors.greenSoft }]}
+            onPress={() => router.push("/receber/entregue")}
+            activeOpacity={0.85}
+          >
+            <View style={[styles.iconBox, { backgroundColor: colors.green }]}>
+              <CheckCircle2 size={28} color={colors.inverse} />
+            </View>
+            <View style={styles.actionTexts}>
+              <Text style={[styles.actionTitle, { color: colors.green }]}>ENTREGUE</Text>
+              <Text style={styles.actionDesc}>Pedidos entregues (com ou sem alteração)</Text>
+            </View>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

@@ -11,7 +11,6 @@ API = f"{BASE_URL}/api"
 
 
 def _unique_phone() -> str:
-    # Brazilian-like 11 digits, unique per run
     return "11" + str(int(time.time() * 1000) % 1_000_000_000).zfill(9)
 
 
@@ -146,7 +145,6 @@ class TestOrders:
         r = session.post(f"{API}/orders/{order_id}/receive", headers=ph_b)
         assert r.status_code == 400
 
-        # 7) Confirm persistence: not in em_via list any more
         r = session.get(f"{API}/orders", params={"store": "Castelo", "status": "em_via"}, headers=ph)
         assert all(o["id"] != order_id for o in r.json())
 

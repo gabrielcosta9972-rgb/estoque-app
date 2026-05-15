@@ -12,7 +12,6 @@ PRODUCTS = {
         "Amendoim",
         "Farofa de Amendoim",
         "Oreo",
-        "Bombom",
         "Café",
         "Canela em Pó",
         "Cereja",
@@ -58,7 +57,7 @@ PRODUCTS = {
     
 
     ],
-    "Hortfrut": [
+    "Hortifruti": [
         "Abacaxi",
         "Abobrinha",
         "Alecrim",
@@ -83,6 +82,10 @@ PRODUCTS = {
 
 
 
+    ],
+    "Doces": [
+        "Bombom",
+        "Ovomaltine",
     ],
     "Embalagens": [
         "Bobina p",

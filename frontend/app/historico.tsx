@@ -19,11 +19,16 @@ import { api, formatApiError } from "../src/api";
 import { useAuth } from "../src/auth";
 import { colors, spacing, radius } from "../src/theme";
 
+type OrderItem = { product_id: string; name: string; quantity: number };
+
 type Order = {
   id: string;
   store: string;
   store_label: string;
-  items: { product_id: string; name: string; quantity: number }[];
+  items: OrderItem[];
+  original_items?: OrderItem[] | null;
+  adjustment_note?: string | null;
+  has_adjustments?: boolean;
   status: string;
   created_by_name?: string | null;
   received_by_name?: string | null;
@@ -158,12 +163,24 @@ export default function Historico() {
                   </View>
                 </View>
                 <View style={styles.divider} />
-                {item.items.map((it) => (
-                  <View key={it.product_id} style={styles.itemRow}>
-                    <Text style={styles.itemName} numberOfLines={2}>{it.name}</Text>
-                    <Text style={styles.itemQty}>x{it.quantity}</Text>
+                {item.items.map((it) => {
+                  const original = item.original_items?.find((o) => o.product_id === it.product_id);
+                  const changed = original && original.quantity !== it.quantity;
+                  return (
+                    <View key={it.product_id} style={styles.itemRow}>
+                      <Text style={styles.itemName} numberOfLines={2}>
+                        {it.name}{changed ? ` (pedido: ${original.quantity})` : ""}
+                      </Text>
+                      <Text style={[styles.itemQty, changed ? styles.changedQty : null]}>x{it.quantity}</Text>
+                    </View>
+                  );
+                })}
+                {item.has_adjustments ? (
+                  <View style={styles.adjustmentBox}>
+                    <Text style={styles.adjustmentTitle}>Pedido entregue com alteração</Text>
+                    {item.adjustment_note ? <Text style={styles.adjustmentNote}>{item.adjustment_note}</Text> : null}
                   </View>
-                ))}
+                ) : null}
                 {recebido && item.received_by_name ? (
                   <Text style={styles.receivedInfo}>Recebido por {item.received_by_name} · {formatDate(item.received_at)}</Text>
                 ) : null}
@@ -252,6 +269,10 @@ const styles = StyleSheet.create({
   itemRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
   itemName: { flex: 1, fontSize: 14, color: colors.textPrimary, marginRight: spacing.sm },
   itemQty: { fontSize: 14, fontWeight: "700", color: colors.purple },
+  changedQty: { color: colors.orange },
+  adjustmentBox: { backgroundColor: colors.orangeSoft, borderColor: colors.orangeBorder, borderWidth: 1, borderRadius: radius.input, padding: spacing.sm, marginTop: spacing.sm },
+  adjustmentTitle: { color: colors.orange, fontWeight: "800", fontSize: 12, marginBottom: 2 },
+  adjustmentNote: { color: colors.textSecondary, fontSize: 12, lineHeight: 17 },
   receivedInfo: { fontSize: 12, color: colors.textSecondary, marginTop: spacing.sm, fontStyle: "italic" },
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg },
   emptyText: { color: colors.textSecondary, fontSize: 16, marginTop: spacing.md },
