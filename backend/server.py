@@ -41,6 +41,7 @@ STORES = ["Castelo", "Mesc", "Delivery", "Baeta", "Producao"]
 
 # Sublojas da Baeta aceitas pelo backend
 BAETA_SUBSTORES = ["Pizzaria", "Copa", "Bar"]
+BAETA_ALL_STORES = ["Baeta", *BAETA_SUBSTORES]
 
 # Todas as lojas válidas para criar pedido
 VALID_STORES = STORES + BAETA_SUBSTORES
@@ -335,7 +336,13 @@ async def list_orders(
     user_role = user.get("role") or "pedir"
     query = {}
     if store:
-        query["store"] = normalize_store(store)
+        normalized_store = normalize_store(store)
+        # Quem recebe abrindo Baeta também enxerga pedidos das sublojas
+        # Pizzaria, Copa e Bar.
+        if user_role == "receber" and normalized_store == "Baeta":
+            query["store"] = {"$in": BAETA_ALL_STORES}
+        else:
+            query["store"] = normalized_store
     if status:
         query["status"] = status
     if mine or user_role == "pedir":
