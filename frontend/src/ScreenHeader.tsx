@@ -11,7 +11,7 @@ type Props = {
   testID?: string;
 };
 
-export default function ScreenHeader({ title, subtitle, color = colors.textPrimary, testID }: Props) {
+export default function ScreenHeader({ title, subtitle, color = colors.gold, testID }: Props) {
   const router = useRouter();
   return (
     <View style={styles.row} testID={testID}>
@@ -21,7 +21,7 @@ export default function ScreenHeader({ title, subtitle, color = colors.textPrima
         testID="header-back-button"
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <ArrowLeft size={24} color={colors.textPrimary} />
+        <ArrowLeft size={25} color={colors.gold} />
       </TouchableOpacity>
       <View style={{ flex: 1, marginLeft: spacing.sm }}>
         <Text style={[styles.title, { color }]} numberOfLines={1}>
@@ -42,15 +42,20 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderWidth: 1.2,
+    borderColor: colors.borderStrong,
+    shadowColor: colors.gold,
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 4,
   },
-  title: { fontSize: 22, fontWeight: "800", letterSpacing: -0.3 },
-  subtitle: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  title: { fontSize: 24, fontWeight: "900", letterSpacing: -0.4 },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
 });

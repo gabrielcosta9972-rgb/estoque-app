@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "frontend",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#F8FAFC"
+        "backgroundColor": "#050505"
       },
       "edgeToEdgeEnabled": true
     },
@@ -28,6 +28,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "splash": {
+      "image": "./assets/images/marikota-logo-clean.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#050505"
     }
   }
 }

@@ -36,14 +36,39 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
+# Lojas principais
 STORES = ["Castelo", "Mesc", "Delivery", "Baeta", "Producao"]
+
+# Sublojas da Baeta aceitas pelo backend
+BAETA_SUBSTORES = ["Pizzaria", "Copa", "Bar"]
+
+# Todas as lojas válidas para criar pedido
+VALID_STORES = STORES + BAETA_SUBSTORES
+
 STORE_LABELS = {
     "Castelo": "Castelo",
     "Mesc": "Mesc",
     "Delivery": "Delivery",
     "Baeta": "Baeta",
     "Producao": "Produção",
+    "Pizzaria": "Pizzaria",
+    "Copa": "Copa",
+    "Bar": "Bar",
 }
+
+# Aceita tanto maiúsculo quanto minúsculo vindo do frontend
+STORE_ALIASES = {
+    "castelo": "Castelo",
+    "mesc": "Mesc",
+    "delivery": "Delivery",
+    "baeta": "Baeta",
+    "producao": "Producao",
+    "produção": "Producao",
+    "pizzaria": "Pizzaria",
+    "copa": "Copa",
+    "bar": "Bar",
+}
+
 CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Embalagens", "Hortifruti", "Bebidas", "Doces", "Outros"]
 
 
@@ -59,6 +84,13 @@ def normalize_category(category: Optional[str]) -> Optional[str]:
     if not category:
         return category
     return CATEGORY_ALIASES.get(category, category)
+
+
+def normalize_store(store: Optional[str]) -> Optional[str]:
+    if not store:
+        return store
+    store_clean = store.strip()
+    return STORE_ALIASES.get(store_clean.lower(), store_clean)
 
 
 from products_config import PRODUCTS as SEED_PRODUCTS
@@ -265,7 +297,8 @@ async def list_products(category: Optional[str] = None, _: dict = Depends(get_cu
 @api_router.post("/orders", response_model=Order)
 async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_current_user)):
     require_role(user, "pedir")
-    if payload.store not in STORES:
+    normalized_store = normalize_store(payload.store)
+    if normalized_store not in VALID_STORES:
         raise HTTPException(status_code=400, detail="Loja inválida")
     if not payload.items:
         raise HTTPException(status_code=400, detail="Carrinho vazio")
@@ -273,8 +306,8 @@ async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_cur
     now = datetime.now(timezone.utc)
     doc = {
         "id": order_id,
-        "store": payload.store,
-        "store_label": STORE_LABELS[payload.store],
+        "store": normalized_store,
+        "store_label": STORE_LABELS[normalized_store],
         "items": [item.model_dump() for item in payload.items],
         "original_items": None,
         "adjustment_note": None,
@@ -302,7 +335,7 @@ async def list_orders(
     user_role = user.get("role") or "pedir"
     query = {}
     if store:
-        query["store"] = store
+        query["store"] = normalize_store(store)
     if status:
         query["status"] = status
     if mine or user_role == "pedir":

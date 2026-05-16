@@ -13,7 +13,7 @@ import {
   TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Check, PackageOpen, Pencil } from "lucide-react-native";
 import ScreenHeader from "../../src/ScreenHeader";
 import { api, formatApiError } from "../../src/api";
@@ -108,15 +108,31 @@ export default function ReceberPedidos() {
         <View style={styles.empty}><PackageOpen size={48} color={colors.textDisabled} /><Text style={styles.emptyText}>Nenhum pedido em via</Text></View>
       ) : (
         <FlatList
+          keyboardDismissMode="on-drag"
           data={orders}
           keyExtractor={(o) => o.id}
           contentContainerStyle={{ padding: spacing.md, paddingTop: 0 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor={colors.green} />}
           renderItem={({ item }) => (
-            <View style={styles.card} testID={`order-card-${item.id}`}>
+            <TouchableOpacity
+              style={styles.card}
+              testID={`order-card-${item.id}`}
+              activeOpacity={0.86}
+              onPress={() =>
+                router.push({
+                  pathname: "/receber/pedido-detalhe",
+                  params: {
+                    orderId: item.id,
+                    store: item.store,
+                    label: item.store_label || item.store,
+                  },
+                } as any)
+              }
+            >
               <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardTitle}>Pedido</Text>
+                  <Text style={styles.storeBadge}>Loja: {item.store_label || item.store}</Text>
                   <Text style={styles.cardMeta}>{item.created_by_name ? `${item.created_by_name} · ` : ""}{formatDate(item.created_at)}</Text>
                 </View>
                 <View style={styles.tag}><Text style={styles.tagText}>EM VIA</Text></View>
@@ -129,6 +145,7 @@ export default function ReceberPedidos() {
                 </View>
               ))}
 
+              <Text style={styles.tapHint}>Toque no pedido para ver detalhes</Text>
               <View style={styles.actionRow}>
                 <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)} activeOpacity={0.85}>
                   <Pencil size={18} color={colors.green} />
@@ -138,7 +155,7 @@ export default function ReceberPedidos() {
                   {actingId === item.id ? <ActivityIndicator color={colors.inverse} /> : <><Check size={18} color={colors.inverse} /><Text style={styles.receiveText}>Confirmar</Text></>}
                 </TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           )}
         />
       )}

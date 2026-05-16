@@ -9,10 +9,10 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Link } from "expo-router";
-import { Package } from "lucide-react-native";
 import { useAuth } from "../src/auth";
 import { colors, spacing, radius } from "../src/theme";
 
@@ -49,9 +49,10 @@ export default function Login() {
       >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.logoBox}>
-            <View style={styles.logoCircle}>
-              <Package size={36} color={colors.inverse} />
-            </View>
+            <Image
+              source={require("../assets/images/marikota-logo-clean.png")}
+              style={styles.logoImage}
+            />
             <Text style={styles.title}>Estoque</Text>
             <Text style={styles.subtitle}>Marikota</Text>
           </View>
@@ -115,17 +116,15 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flexGrow: 1, padding: spacing.md, justifyContent: "center" },
   logoBox: { alignItems: "center", marginBottom: spacing.xl },
-  logoCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.blue,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.md,
+  logoImage: {
+    width: 285,
+    height: 120,
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginBottom: 2,
   },
-  title: { fontSize: 32, fontWeight: "800", color: colors.textPrimary, letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 4 },
+  title: { fontSize: 28, fontWeight: "800", color: colors.textPrimary, letterSpacing: -0.5 },
+  subtitle: { fontSize: 15, color: colors.gold, marginTop: 4, fontWeight: "600" },
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.card,

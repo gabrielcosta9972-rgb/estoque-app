@@ -31,22 +31,29 @@ export default function PedirLojas() {
   }, []);
 
   const onSelect = (s: StoreItem) => {
+    if (s.label.toLowerCase() === "baeta") {
+      router.push({
+        pathname: "/pedir/baeta",
+        params: { storeId: s.id, storeLabel: s.label },
+      } as any);
+      return;
+    }
     setStore(s.id, s.label);
     router.push("/pedir/categorias");
   };
 
   return (
     <SafeAreaView style={styles.safe} testID="pedir-lojas-screen">
-      <ScreenHeader title="Lojas" subtitle="Escolha a loja para pedir" color={colors.blue} />
+      <ScreenHeader title="Lojas" subtitle="Escolha a loja para pedir" color={colors.gold} />
       {loading ? (
-        <ActivityIndicator color={colors.blue} style={{ marginTop: 32 }} />
+        <ActivityIndicator color={colors.gold} style={{ marginTop: 32 }} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
         <FlatList
           data={stores}
           keyExtractor={(s) => s.id}
-          contentContainerStyle={{ padding: spacing.md, paddingTop: 0 }}
+          contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity
               testID={`store-${item.id}`}
@@ -55,7 +62,7 @@ export default function PedirLojas() {
               style={styles.row}
             >
               <Text style={styles.label}>{item.label}</Text>
-              <ChevronRight size={20} color={colors.textDisabled} />
+              <ChevronRight size={26} color={colors.gold} />
             </TouchableOpacity>
           )}
         />
@@ -66,6 +73,7 @@ export default function PedirLojas() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+  list: { padding: spacing.md, paddingTop: 0 },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -73,10 +81,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.borderLight,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    minHeight: 64,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    minHeight: 82,
   },
-  label: { flex: 1, fontSize: 16, fontWeight: "600", color: colors.textPrimary },
+  label: { flex: 1, fontSize: 18, fontWeight: "800", color: colors.textPrimary },
   error: { color: colors.danger, padding: spacing.md, textAlign: "center" },
 });

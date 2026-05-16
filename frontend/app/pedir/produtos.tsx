@@ -27,7 +27,7 @@ function normalize(s: string): string {
 
 export default function PedirProdutos() {
   const router = useRouter();
-  const { category } = useLocalSearchParams<{ category: string }>();
+  const { category } = useLocalSearchParams<{ category?: string }>();
   const { items, addOrUpdate, totalCount } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +35,11 @@ export default function PedirProdutos() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
+    if (!category) {
+      router.replace("/pedir/categorias");
+      return;
+    }
+
     (async () => {
       try {
         const { data } = await api.get<Product[]>("/products", { params: { category } });
@@ -45,7 +50,7 @@ export default function PedirProdutos() {
         setLoading(false);
       }
     })();
-  }, [category]);
+  }, [category, router]);
 
   const cartMap = useMemo(() => {
     const m: Record<string, number> = {};
@@ -67,7 +72,7 @@ export default function PedirProdutos() {
 
   return (
     <SafeAreaView style={styles.safe} testID="pedir-produtos-screen">
-      <ScreenHeader title={String(category || "Produtos")} subtitle="Selecione e ajuste a quantidade" color={colors.purple} />
+      <ScreenHeader title={String(category || "Produtos")} subtitle="Selecione e ajuste a quantidade" color={colors.gold} />
 
       <View style={styles.searchWrap}>
         <View style={styles.searchBox}>
@@ -96,11 +101,12 @@ export default function PedirProdutos() {
       </View>
 
       {loading ? (
-        <ActivityIndicator color={colors.purple} style={{ marginTop: 32 }} />
+        <ActivityIndicator color={colors.gold} style={{ marginTop: 32 }} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
         <FlatList
+          keyboardDismissMode="on-drag"
           data={filtered}
           keyExtractor={(p) => p.id}
           keyboardShouldPersistTaps="handled"
@@ -123,7 +129,7 @@ export default function PedirProdutos() {
                     onPress={() => updateQty(item, -1)}
                     disabled={qty === 0}
                   >
-                    <Minus size={16} color={qty === 0 ? colors.textDisabled : colors.purple} />
+                    <Minus size={16} color={qty === 0 ? colors.textDisabled : colors.gold} />
                   </TouchableOpacity>
                   <Text style={styles.qty} testID={`product-${item.id}-qty`}>
                     {qty}
@@ -133,7 +139,7 @@ export default function PedirProdutos() {
                     style={styles.qtyBtn}
                     onPress={() => updateQty(item, 1)}
                   >
-                    <Plus size={16} color={colors.purple} />
+                    <Plus size={16} color={colors.gold} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -196,7 +202,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     minHeight: 64,
   },
-  rowSelected: { borderColor: colors.purpleBorder, backgroundColor: colors.purpleSoft },
+  rowSelected: { borderColor: colors.goldBorder, backgroundColor: colors.goldSoft },
   checkBox: {
     width: 24,
     height: 24,
@@ -208,7 +214,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: spacing.md,
   },
-  checkBoxOn: { backgroundColor: colors.purple, borderColor: colors.purple },
+  checkBoxOn: { backgroundColor: colors.gold, borderColor: colors.gold },
   name: { flex: 1, fontSize: 15, fontWeight: "600", color: colors.textPrimary, marginRight: spacing.sm },
   qtyRow: { flexDirection: "row", alignItems: "center" },
   qtyBtn: {
@@ -216,7 +222,7 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.purpleBorder,
+    borderColor: colors.goldBorder,
     backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
