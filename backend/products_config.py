@@ -1,31 +1,48 @@
 PRODUCTS = {
     "Mercearia": [
-        "Atum",
+        "Atum cx",
         "Azeitona",
-        "Açúcar",
-        "Sal",
+        "Açúcar 1kg",
+        "Sal 1kg",
         "Azeite",
         "Farinha 5kg",
+        "Farinha 25kg",
         "Óleo 900ml",
         "Barbecue",
         "Batata Palha",
         "Amendoim",
-        "Farofa de Amendoim",
-        "Oreo",
         "Café",
-        "Canela em Pó",
-        "Cereja",
-        "Champignom",
-        "Chocolate Cx",
-        "Chocolate un",
-        "Chocolate Branco Cx",
-        "Chocolate Branco un",
-        "Coco ralado",
-        "Creme de Leite cx",
-        "Creme de Leite un",
-        "Doce de Leite cx",
-        "Doce de Leite un",
+        "Champignom Balde",
         "Doritos",
+        "Alho frito",
+        "Emulsificante",
+        "Ervilha lata",
+        "Fermento seco",
+        "Fuba 5kg",
+        "Leite de coco",
+        "Margarina ",
+        "Milho lata 1,7kg",
+        "Molho de pimenta",
+        "Molho Tare 1l",
+        "Palmito ",
+        "Pimenta biquinho 2k",
+        "Pimenta calabresa 500g",
+        "Sache de Açucar 1kg",
+        "Sache de Sal",
+        "Sache de Adoçante",
+        "Sache de Ketchup",
+        "óregano 500g",
+        "Tomate seco",
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36,77 +53,314 @@ PRODUCTS = {
 
     ],
     "Resfriados": [
-        "Açucar",
-        "Açai",
-        "Queijo Mussarela",
-        "Apresuntado",
-        "Bacon",
-        "Atum",
-        "Brocolis",
-        "Cebola",
-        "Cebolinha 100g",
-        "Cheddar cx",
-        "Cheddar un",
+        "Alho poró",
+        "Mussarela Cx",
+        "Mussraela uni",
+        "Cheddar Cx",
+        "Cheddar Bisnaga",
         "Champignom",
         "Cream Chese cx",
         "Cream chese un",
-        "Costela",
-        "Ervilha",
+        "CreaM cheese cx",
+        "Cream cheese un",
+        "Molho Balde",
+        "Bufula Cereja",
+        "Ovos Cozidos Balde",
+        "Pasta de alho",
+        "Peperone pct",
+        "Geleia de Pimenta",
+        "Moranguete",
+        "Molho Pesto",
+        "Catupiry Tirole Cx",
+        "Catupiry Tirole un",
+        "Catupiry Original Cx",
+        "Catupiry Original un",
 
 
-    
 
-    ],
+
+
+
+
+        
+],
+"Congelados": [
+    "AÇAI",
+    "Sorvete Creme 10l",
+    "Morango polpa 1kg",
+    "Brocolis pct",
+    "Frango pct",
+    "Camarão pct",
+    "Apresuntado pct",
+    "Lombo pct",
+    "Calabresa pct Dv",
+    "Calabresa pct Rd",
+    "Calabresa Moida pct Dv",
+    "Calabresa Moida pct Rd",
+    "Parmesão pct",
+    "Provolone pct",
+    "Bacon pct",
+    "Queijo Brie",
+    "Gorgonzola",
+    "Escarola pct",
+    "Berinjela pct",
+    "Carne seca pct",
+    "Costela pct",
+    "Queijo coalho pct",
+    "Peito de peru pct",
+    "Polpa Abacaxi 1,2kg",
+    "Polpa Maracuja 1,2kg",
+    "Polpa Manga 1,2kg",
+    "Polpa Acerola 1,2kg",
+    "Polpa Frutas vermelhas 1,2kg",
+    "Cebola Caramelizada",
+    "Toscana pct",
+
+
+
+
+
+
+
+
+],
+
     "Hortifruti": [
         "Abacaxi",
         "Abobrinha",
         "Alecrim",
-        "",
-        "Escarola",
-        "Alface",
-        "Banana 1kg",
-        "Berinjela",
+        "Banana kg",
         "Coentro",
+        "Hortelã 100g",
+        "Cebolinha 100g",
+        "Cebola 2kg",
+        "Laranja saco",
+        "Limão kg",
+        "Limao siciliano kg",
+        "Maçã kg",
+        "Manjericão 100g",
+        "Morango cx",
+        "Pimenta dedo de moça 100g",
+        "Rucula ",
+        "Salsa 100g",
+        "Tomate Cosrte kg",
+        "Tomate Cereja 200g",
+        "Uva cx",
+
+
+
+
+
+
 
     ],
     "Bebidas":[
-        "Água",
-        "Água com gas",
+        "Água uni",
+        "Água FD",
+        "Água com gas uni",
+        "Água com gas FD",
         "Cachaça",
-        "Cerveja",
         "Coca cola 2l zero",
+        "Coca cola lata FD",
         "Coca cola 2l",
-        "Red Bull Fd",
+        "Coca cola lata Zero FD",
+        "Red Bull Fd x4",
         "Reed bull un",
-        "Fanta LT"
+        "Fanta Laranja",
+        "Fanta Uva ",
+        "Cachaça Salinas",
+        "Cachaça Seleta",
+        "Velho Barreiro",
+        "Aperitivo Aerol",
+        "Capsula de gas Chantilly",
+        "Cerveja Amstel Ultra 275ml",
+        "Cerveja Corona Long Neck 330ml",
+        "Cerveja Corona Long Neck Zero 355ml",
+        "Cerveja Eisenbahn 600ml",
+        "Cerveja Heineken 600ml",
+        "Cerveja Heineken Long Neck 330ml",
+        "Cerveja Heineken Long Neck Zero 330ml",
+        "Cerveja Original 6/00ml",
+        "Cerveja Skol 600ml",
+        "Cerveja Spaten 600ml",
+        "Cerveja Stella 600ml",
+        "Espuma de Gengibre",
+        "Espumante Moscatel",
+        "Gin Seagers 1l",
+        "Guarana 2l",
+        "Guarana 2l zero",
+        "Guarana lata",
+        "Guarana lata zero",
+        "H2O Limão",
+        "H2O Limoneto",
+        "José Cuervo ouro",
+        "José Cuervo Branco",
+        "Jurupinga",
+        "Leite integral 1l",
+        "Licor 43",
+        "Licor Baileys",
+        "Licor Cointreau",
+        "Licor Stock Cassis",
+        "Licor Stock Caraçau red",
+        "Licor Stock Pêssego",
+        "Malibu Coco",
+        "Motilla Cristal",
+        "Salto",
+        "Saque",
+        "Schwerppers Citrus lata uni",
+        "Schwerppers Citrus lata FD",
+        "Sprite lata  uni",
+        "Sprite lata Fd",
+        "Vinho Hortencia",
+        "Vinho Hortencia Cabernet",
+        "Vinho Hortencia malbec",
+        "Vinho Hortencia Merlot",
+        "Vinho Hortencia Rose fino",
+        "Vinho Mar adentro ",
+        "Vinho Tinto suave",
+        "Vodka Smirnoff",
+        "Wisky Black Label 1l",
+        "Wisky Red Label 700ml",
+        "wisky Red Label 1l",
+        "Xarope Cassis",
+        "Xarope de cranberry",
+        "Xarope de Gengibre",
+        "Xarope de Maçã verde",
+        "Xarope de Menta",
+        "Xarope de Morango",
+        "Xarope de Groselha",
+
+
+
+
+
+
+        
+
+
+
 
 
 
     ],
     "Doces": [
-        "Bombom",
+        "Bombom Sonho de Valsa",
         "Ovomaltine",
+        "Confete",
+        "Coco ralado",
+        "Oreo",
+        "Farofa de Amendoim",
+        "Amendoim",
+        "Doce de Leite uni",
+        "Chocolate preto uni",
+        "Chocolate preto cx",
+        "Chocolate branco uni",
+        "Chocolate branco cx",
+        "Creme de Leite uni",
+        "Creme de Leite cx",
+        "Leite condensado uni",
+        "Canela em pó",
+        "Cereja Lata",
+        "Granulado",
+        "kit Kat cx",
+        "Goiabada Bisnaga",
+        "Granola",
+        "Leite em pó",
+        "Marshmallow 250g",
+        "Creme de Ninho uni",
+        "Nutela 3gk",
+        "Suspiro",
+
+
+
+
+
+
+
     ],
     "Embalagens": [
         "Bobina p",
         "Bobina M",
         "Bobina G",
-        "Saco de lixo 100l",
         "Copo 200ml",
         "Sacola Plástica",
         "Caixa de Pizza G 50un",
         "Caixa de Pizza B 50un",
+        "Bandeja de isopor",
+        "Caixa quadrada P",
+        "Caixa quadrada M",
+        "Caixa quadrada G",
+        "Canudo Comum ",
+        "Canudo para Drink",
+        "Embalagem termica p",
+        "Embalagem termica G",
+        "Fita adesiva C10",
+        "Guardanapo c1000",
+        "Lacre de segurança",
+        "Marmitex 550ml c100",
+        "Marmitex 750ml c100",
+        "Palito de dente",
+        "Papel Higiênico",
+        "Papel Manteiga p c500",
+        "Papel Manteiga G c500",
+        "Papel Toalha ",
+        "Pega pet",
+        "Plastico filme",
+        "Saco de Confeitar",
+        "Saquinho talher",
+        "Touca descartavel",
+        "Vela palitinho",
+
+
+
+
+
+
+
+
+
+        
+
 
     
     ],
     "Limpeza": [
         "Detergente",
         "Saco de lixo",
-        "Esponja",
+        "Esponja c10 uni",
         "Álcool",
+        "Álcool Gel 5l"
         "Cloro 5L",
-        "Desinfetate",
+        "Desinfetate 5l",
         "Detergente",
+        "Desinfetante Hortifruti",
+        "Esponja Fibra Verde",
+        "Limpa Aluminio 5l",
+        "Luva descartavel",
+        "Luva de borracha",
+        "Odorizador",
+        "Pano de chão",
+        "Pano fiber 30x38",
+        "Pano smart azul c600",
+        "Saco de lixo 100l",
+        "Saco de lixo 60l",
+        "Saco de lixo 40l",
+        "Saco de lixo branco 60l",
+        "Saco plastico trasparente 5kg",
+        "Soft sabonete liquido 1,3l",
+        "Soft care des-e foam 1,3l",
+        "Soft care sabonete antisséptico",
+        "Sumagril",
+        "Suma power 5l",
+        "Suma rinse bb 5l"
+
+
+
+
+    
+
+
+
 
 
     ],
@@ -118,9 +372,36 @@ PRODUCTS = {
         "Canudo",
         "Colher",
         "Espatula",
-        ""
+        "Espatula curva",
+        "Etiqueta de validade",
+        "Bobina termica impressora",
+        "Borrifador",
+        "Copo tulipa",
+        "Copo descartavel",
+        "Copo de suco",
+        "Copo de vidro",
+        "Escova de aço",
+        "Esfregão",
+        "Gas maçarico",
+        "Maçarico",
+        "Pá de lixo",
+        "Pá para pizza",
+        "Rolo de etiqueta termica",
+        "Rolo furador",
+
+
+
 
 
         
     ],
+    "Almoco":[
+        "Arroz 5kg",
+        "Feijão",
+        "Macarrão",
+        "Mandioca kg",
+        "Carne kg",
+        "Mistura para bolo",
+        "Tempero de galinha",
+    ]
 }

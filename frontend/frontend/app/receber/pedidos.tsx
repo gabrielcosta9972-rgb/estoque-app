@@ -18,7 +18,6 @@ import { Check, PackageOpen, Pencil } from "lucide-react-native";
 import ScreenHeader from "../../src/ScreenHeader";
 import { api, formatApiError } from "../../src/api";
 import { colors, spacing, radius } from "../../src/theme";
-import { tapGestureHandlerProps } from "react-native-gesture-handler/lib/typescript/handlers/TapGestureHandler";
 
 type OrderItem = { product_id: string; name: string; quantity: number };
 type Order = {
@@ -241,5 +240,4 @@ const styles = StyleSheet.create({
   cancelText: { color: colors.textPrimary, fontWeight: "600" },
   saveBtn: { minHeight: 46, paddingHorizontal: spacing.lg, alignItems: "center", justifyContent: "center", borderRadius: radius.button, backgroundColor: colors.green },
   saveText: { color: colors.inverse, fontWeight: "700" },
-  tapHint: { color: colors.textSecondary, fontSize: 14, marginTop: 8, marginBottom: 8 },
 });

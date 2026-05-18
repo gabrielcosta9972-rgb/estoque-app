@@ -217,7 +217,21 @@ export default function PedidoDetalhe() {
                       </Text>
                     </View>
 
-                    <Text style={styles.qty}>x{item.quantity}</Text>
+                    <View style={styles.productRight}>
+                      <Text style={styles.qty}>x{item.quantity}</Text>
+
+                      <TouchableOpacity
+                        style={styles.editIconButton}
+                        activeOpacity={0.75}
+                        onPress={() => {
+                          setEditedItems([{ ...item }]);
+                          setAdjustmentNote(pendingNote || "");
+                          setEditOpen(true);
+                        }}
+                      >
+                        <Pencil size={22} color={colors.gold} />
+                      </TouchableOpacity>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -373,6 +387,22 @@ const styles = StyleSheet.create({
   },
   productName: { color: colors.textPrimary, fontSize: 20, fontWeight: "800" },
   productMeta: { color: colors.textSecondary, fontSize: 14, marginTop: 3 },
+  productRight: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginLeft: 10,
+  },
+  editIconButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: colors.gold,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.card,
+  },
   qty: { color: colors.gold, fontSize: 24, fontWeight: "900", marginLeft: 12 },
   totalRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: spacing.lg },
   totalLabel: { color: colors.textSecondary, fontSize: 18, fontWeight: "800" },

@@ -36,14 +36,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
-# Lojas principais
 STORES = ["Castelo", "Mesc", "Delivery", "Baeta", "Producao"]
 
-# Sublojas da Baeta aceitas pelo backend
 BAETA_SUBSTORES = ["Pizzaria", "Copa", "Bar"]
 BAETA_ALL_STORES = ["Baeta", *BAETA_SUBSTORES]
 
-# Todas as lojas válidas para criar pedido
 VALID_STORES = STORES + BAETA_SUBSTORES
 
 STORE_LABELS = {
@@ -57,7 +54,6 @@ STORE_LABELS = {
     "Bar": "Bar",
 }
 
-# Aceita tanto maiúsculo quanto minúsculo vindo do frontend
 STORE_ALIASES = {
     "castelo": "Castelo",
     "mesc": "Mesc",
@@ -70,7 +66,8 @@ STORE_ALIASES = {
     "bar": "Bar",
 }
 
-CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Embalagens", "Hortifruti", "Bebidas", "Doces", "Outros"]
+CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Congelados0,"
+"","Embalagens", "Hortifruti", "Bebidas", "Doces", "Outros"]
 
 
 CATEGORY_ALIASES = {
