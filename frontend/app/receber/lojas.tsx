@@ -27,6 +27,9 @@ export default function ReceberLojas() {
         const c: Record<string, number> = {};
         pending.forEach((o) => {
           c[o.store] = (c[o.store] || 0) + 1;
+          if (["Castelo", "Mesc", "Delivery",].includes(o.store)) {
+            c["Baeta"] = (c["Baeta"] || 0) + 1;
+          }
         });
         setCounts(c);
       } catch (e) {

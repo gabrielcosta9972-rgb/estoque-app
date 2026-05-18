@@ -53,7 +53,6 @@ PRODUCTS = {
 
     ],
     "Resfriados": [
-        "Alho poró",
         "Mussarela Cx",
         "Mussraela uni",
         "Cheddar Cx",
@@ -68,10 +67,11 @@ PRODUCTS = {
         "Geleia de Pimenta",
         "Moranguete",
         "Molho Pesto",
-        "Catupiry Tirole Cx",
-        "Catupiry Tirole un",
+        "Catupiry Tirolez Cx",
+        "Catupiry Tirolez un",
         "Catupiry Original Cx",
         "Catupiry Original un",
+        "Gorgonzola",
 
 
 
@@ -98,7 +98,6 @@ PRODUCTS = {
     "Provolone pct",
     "Bacon pct",
     "Queijo Brie",
-    "Gorgonzola",
     "Escarola pct",
     "Berinjela pct",
     "Carne seca pct",
@@ -124,6 +123,7 @@ PRODUCTS = {
 
     "Hortifruti": [
         "Abacaxi",
+        "Alho póro",
         "Abobrinha",
         "Alecrim",
         "Banana kg",
