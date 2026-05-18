@@ -66,7 +66,7 @@ STORE_ALIASES = {
     "bar": "Bar",
 }
 
-CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Congelados0,"
+CATEGORIES = ["Mercearia", "Resfriados", "Limpeza", "Congelados,"
 "","Embalagens", "Hortifruti", "Bebidas", "Doces", "Outros"]
 
 
