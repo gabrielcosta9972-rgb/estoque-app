@@ -169,7 +169,7 @@ class Product(BaseModel):
 class OrderItem(BaseModel):
     product_id: str
     name: str
-    quantity: int = Field(..., ge=0)
+    quantity: float = Field(..., ge=0)
 
 
 class CreateOrderRequest(BaseModel):
@@ -379,7 +379,7 @@ async def receive_order(
             {
                 "product_id": str(item.product_id),
                 "name": item.name,
-                "quantity": int(item.quantity) if item.quantity is not None else 0,
+                "quantity": float(item.quantity) if item.quantity is not None else 0,
             }
             for item in payload.items
         ]
@@ -401,7 +401,7 @@ async def receive_order(
     if not has_adjustments:
         for product_id, original in original_by_product.items():
             delivered = final_by_product.get(product_id)
-            if not delivered or int(original.get("quantity", 0)) != int(delivered.get("quantity", 0)):
+            if not delivered or float(original.get("quantity", 0)) != float(delivered.get("quantity", 0)):
                 has_adjustments = True
                 break
 
