@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#050505"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.bielgzim.frontend"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +34,12 @@
       "image": "./assets/images/marikota-logo-clean.png",
       "resizeMode": "contain",
       "backgroundColor": "#050505"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ff60f917-cceb-406f-a015-cc76f5a79887"
+      }
     }
   }
 }

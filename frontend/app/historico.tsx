@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Share,
   FlatList,
   ActivityIndicator,
   Alert,
@@ -47,6 +48,41 @@ export default function Historico() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isReceber = user?.role === "receber";
+
+const compartilharWhatsApp = async (pedido: Order) => {
+  try {
+    const itens = pedido.items
+      ?.map((item) =>
+  `• ${item.name} ${
+    String(item.quantity).includes(".")
+      ? `${item.quantity}kg`
+      : `x${item.quantity}`
+  }`
+)
+      .join("\n");
+
+    const mensagem = `
+📦 Pedido Recebido
+
+Loja: ${pedido.store_label}
+
+Itens:
+${itens}
+
+📌 Status:
+${pedido.has_adjustments ? "Pedido entregue com alteração" : "Pedido entregue"}
+
+👤 Recebido por:
+${pedido.received_by_name || "Não informado"}
+`;
+
+    await Share.share({
+      message: mensagem,
+    });
+  } catch (error) {
+    Alert.alert("Erro", "Não foi possível compartilhar.");
+  }
+};
 
   const load = useCallback(async () => {
     try {
@@ -171,7 +207,10 @@ export default function Historico() {
                       <Text style={styles.itemName} numberOfLines={2}>
                         {it.name}{changed ? ` (pedido: ${original.quantity})` : ""}
                       </Text>
-                      <Text style={[styles.itemQty, changed ? styles.changedQty : null]}>x{it.quantity}</Text>
+                      <Text style={[styles.itemQty, changed ? styles.changedQty : null]}>{String(it.quantity).includes(".")
+                            ? `${it.quantity}kg`
+                            : `x${it.quantity}`}
+                            </Text> 
                     </View>
                   );
                 })}
@@ -183,6 +222,15 @@ export default function Historico() {
                 ) : null}
                 {recebido && item.received_by_name ? (
                   <Text style={styles.receivedInfo}>Recebido por {item.received_by_name} · {formatDate(item.received_at)}</Text>
+                ) : null}
+                {isReceber ? (
+                  <TouchableOpacity
+                    style={styles.shareBtn}
+                    onPress={() => compartilharWhatsApp(item)}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.shareBtnText}>Compartilhar no WhatsApp</Text>
+                  </TouchableOpacity>
                 ) : null}
               </View>
             );
@@ -246,6 +294,7 @@ export default function Historico() {
       </Modal>
     </SafeAreaView>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -326,5 +375,24 @@ const styles = StyleSheet.create({
     borderRadius: radius.button,
     backgroundColor: colors.danger,
   },
-  modalBtnDangerText: { color: colors.inverse, fontWeight: "700", fontSize: 14 },
-});
+  modalBtnDangerText: {
+    color: colors.inverse,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+
+  shareBtn: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#25D366",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+},
+  shareBtnText: {
+    color: "#25D366",
+    fontWeight: "800",
+    fontSize: 16,
+  },
+
+  });

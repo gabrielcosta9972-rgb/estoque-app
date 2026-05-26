@@ -25,7 +25,7 @@ export default function ReceberLojas() {
         ]);
         setStores(storesData);
         const c: Record<string, number> = {};
-        pending.forEach((o) => {
+        pending.forEach((o: any) => {
           c[o.store] = (c[o.store] || 0) + 1;
           if (["Castelo", "Mesc", "Delivery",].includes(o.store)) {
             c["Baeta"] = (c["Baeta"] || 0) + 1;
@@ -50,9 +50,9 @@ export default function ReceberLojas() {
       ) : (
         <FlatList
           data={stores}
-          keyExtractor={(s) => s.id}
+          keyExtractor={(s: StoreItem) => s.id}
           contentContainerStyle={{ padding: spacing.md, paddingTop: 0 }}
-          renderItem={({ item }) => {
+          renderItem={({ item }: { item: StoreItem }) => {
             const pending = counts[item.id] || 0;
             return (
               <TouchableOpacity

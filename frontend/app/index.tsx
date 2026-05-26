@@ -3,6 +3,7 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../src/auth";
 import { colors } from "../src/theme";
+import { registerForPushNotificationsAsync } from "../utils/notifications";
 
 export default function Index() {
   const { user, loading } = useAuth();
@@ -13,6 +14,17 @@ export default function Index() {
     if (user) router.replace("/home");
     else router.replace("/login");
   }, [loading, user, router]);
+
+  useEffect(() => {
+    async function registerForPushNotifications() {
+      const token = await registerForPushNotificationsAsync();
+      console.log("TOKEN DO CELULAR:", token);
+      }
+      registerForPushNotifications();
+
+      
+    },
+  []);
 
   return (
     <View style={styles.container} testID="boot-screen">

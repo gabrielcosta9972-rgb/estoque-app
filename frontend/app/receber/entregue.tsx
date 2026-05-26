@@ -127,10 +127,16 @@ export default function EntregueScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemName} numberOfLines={2}>{it.name}</Text>
                 {itemChanged ? (
-                  <Text style={styles.itemOriginal}>Pedido original: x{original.quantity}</Text>
+                  <Text style={styles.itemOriginal}>Pedido original: {String(original.quantity).includes(".")
+                    ? `${original.quantity}kg`
+                    : `x${original.quantity}`}</Text>
                 ) : null}
               </View>
-              <Text style={[styles.itemQty, itemChanged ? styles.changedQty : null]}>x{it.quantity}</Text>
+              <Text style={[styles.itemQty, itemChanged ? styles.changedQty : null]}>
+                {String(it.quantity).includes(".")
+                  ? `${it.quantity}kg`
+                  : `x${it.quantity}`}
+</Text>
             </View>
           );
         })}

@@ -62,12 +62,12 @@ export default function ReceberPedidos() {
     try {
       const body = items
         ? {
-            items: items.map((it) => ({
-              ...it,
-              quantity: Number.isFinite(Number(it.quantity)) ? Number(it.quantity) : 0,
-            })),
-            adjustment_note: note?.trim() || undefined,
-          }
+          items: items.map((it) => ({
+            ...it,
+            quantity: Number.isFinite(Number(it.quantity)) ? Number(it.quantity) : 0,
+          })),
+          adjustment_note: note?.trim() || undefined,
+        }
         : {};
 
       await api.post(`/orders/${orderId}/receive`, body);
@@ -150,9 +150,22 @@ export default function ReceberPedidos() {
 
               <Text style={styles.tapHint}>Toque no pedido para ver detalhes</Text>
               <View style={styles.actionRow}>
-                <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)} activeOpacity={0.85}>
+                <TouchableOpacity
+                  style={styles.editBtn}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/receber/pedido-detalhe",
+                      params: {
+                        orderId: item.id,
+                        store: item.store,
+                        label: item.store_label || item.store,
+                      },
+                    } as any)
+                  }
+                  activeOpacity={0.85}
+                >
                   <Pencil size={18} color={colors.green} />
-                  <Text style={styles.editText}>Alterar pedido</Text>
+                  <Text style={styles.editText}>Detalhes</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.receiveBtn, actingId === item.id && { opacity: 0.6 }]} onPress={() => receiveOrder(item.id)} disabled={actingId === item.id} activeOpacity={0.85}>
                   {actingId === item.id ? <ActivityIndicator color={colors.inverse} /> : <><Check size={18} color={colors.inverse} /><Text style={styles.receiveText}>Confirmar</Text></>}
