@@ -16,7 +16,13 @@ import ScreenHeader from "../../src/ScreenHeader";
 import { api, formatApiError } from "../../src/api";
 import { colors, spacing, radius } from "../../src/theme";
 
-type OrderItem = { product_id: string; name: string; quantity: number };
+type OrderItem = {
+  product_id: string;
+  name: string;
+  quantity: number;
+  unit?: "kg" | "un";
+  quantity_text?: string;
+};
 type Order = {
   id: string;
   store: string;
@@ -71,6 +77,20 @@ export default function EntregueScreen() {
         hour12: false,
       });
     } catch { return ""; }
+  };
+
+
+  const formatQty = (item?: OrderItem | null, forceUnit?: "kg" | "un") => {
+    if (!item) return "";
+
+    const unit = forceUnit || item.unit;
+    const rawText = item.quantity_text?.trim();
+    const value = rawText || String(item.quantity);
+
+    if (unit === "kg") return `${value}kg`;
+    if (unit === "un") return `x${Number(item.quantity)}`;
+
+    return String(item.quantity).includes(".") ? `${item.quantity}kg` : `x${item.quantity}`;
   };
 
   const clearDelivered = () => {
@@ -128,15 +148,11 @@ export default function EntregueScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemName} numberOfLines={2}>{it.name}</Text>
                 {itemChanged ? (
-                  <Text style={styles.itemOriginal}>Pedido original: {String(original.quantity).includes(".")
-                    ? `${original.quantity}kg`
-                    : `x${original.quantity}`}</Text>
+                  <Text style={styles.itemOriginal}>Pedido original: {formatQty(original, "un")}</Text>
                 ) : null}
               </View>
               <Text style={[styles.itemQty, itemChanged ? styles.changedQty : null]}>
-                {String(it.quantity).includes(".")
-                  ? `${it.quantity}kg`
-                  : `x${it.quantity}`}
+                {formatQty(it, itemChanged ? "kg" : undefined)}
 </Text>
             </View>
           );

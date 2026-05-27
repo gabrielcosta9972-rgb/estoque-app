@@ -20,7 +20,12 @@ import { api, formatApiError } from "../src/api";
 import { useAuth } from "../src/auth";
 import { colors, spacing, radius } from "../src/theme";
 
-type OrderItem = { product_id: string; name: string; quantity: number };
+type OrderItem = {
+  product_id: string;
+  name: string;
+  quantity: number;
+  unit?: "kg" | "un";
+};
 
 type Order = {
   id: string;
@@ -49,15 +54,16 @@ export default function Historico() {
 
   const isReceber = user?.role === "receber";
 
+  const formatQty = (
+  qty: number,
+  unit?: "kg" | "un"
+) => `${qty}${unit ?? "un"}`;
+
 const compartilharWhatsApp = async (pedido: Order) => {
   try {
     const itens = pedido.items
       ?.map((item) =>
-  `• ${item.name} ${
-    String(item.quantity).includes(".")
-      ? `${item.quantity}kg`
-      : `x${item.quantity}`
-  }`
+  `• ${item.name} ${formatQty(item.quantity, item.unit)}`
 )
       .join("\n");
 
@@ -207,10 +213,9 @@ ${pedido.received_by_name || "Não informado"}
                       <Text style={styles.itemName} numberOfLines={2}>
                         {it.name}{changed ? ` (pedido: ${original.quantity})` : ""}
                       </Text>
-                      <Text style={[styles.itemQty, changed ? styles.changedQty : null]}>{String(it.quantity).includes(".")
-                            ? `${it.quantity}kg`
-                            : `x${it.quantity}`}
-                            </Text> 
+                      <Text style={[styles.itemQty, changed ? styles.changedQty : null]}>
+                        {formatQty(it.quantity, it.unit)}
+                      </Text> 
                     </View>
                   );
                 })}

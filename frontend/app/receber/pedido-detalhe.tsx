@@ -20,7 +20,8 @@ type OrderItem = {
   product_id: string;
   name: string;
   quantity: number;
-  unit?: "un" | "kg";
+  unit?: "kg" | "un";
+  quantity_text?: string;
 };
 
 type Order = {
@@ -47,8 +48,7 @@ export default function PedidoDetalhe() {
   const [error, setError] = useState<string | null>(null);
 
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-  const [quantityValues, setQuantityValues] = useState<Record<string, string>>({});
-  const [unitValues, setUnitValues] = useState<Record<string, "un" | "kg">>({});
+  const [kgValues, setKgValues] = useState<Record<string, string>>({});
   const [note, setNote] = useState("");
 
   const formatDate = (iso: string) => {
@@ -66,7 +66,7 @@ export default function PedidoDetalhe() {
     }
   };
 
-  const normalizeQuantityText = (value: string) => {
+  const normalizeKgText = (value: string) => {
     const clean = value.replace(",", ".").replace(/[^0-9.]/g, "");
     const parts = clean.split(".");
 
@@ -75,8 +75,8 @@ export default function PedidoDetalhe() {
     return `${parts[0]}.${parts.slice(1).join("")}`;
   };
 
-  const quantityTextToNumber = (value: string, fallback: number) => {
-    const normalized = normalizeQuantityText(value);
+  const kgTextToNumber = (value: string, fallback: number) => {
+    const normalized = normalizeKgText(value);
 
     if (!normalized.trim()) return fallback;
 
@@ -97,16 +97,13 @@ export default function PedidoDetalhe() {
       setNote(found?.adjustment_note || "");
 
       if (found) {
-        const initialQuantityValues: Record<string, string> = {};
-        const initialUnitValues: Record<string, "un" | "kg"> = {};
+        const initialKgValues: Record<string, string> = {};
 
         found.items.forEach((item) => {
-          initialQuantityValues[item.product_id] = String(item.quantity);
-          initialUnitValues[item.product_id] = item.unit === "kg" ? "kg" : "un";
+          initialKgValues[item.product_id] = String(item.quantity);
         });
 
-        setQuantityValues(initialQuantityValues);
-        setUnitValues(initialUnitValues);
+        setKgValues(initialKgValues);
         setCheckedItems({});
       }
     } catch (e) {
@@ -130,17 +127,10 @@ export default function PedidoDetalhe() {
     }));
   };
 
-  const changeQuantity = (productId: string, value: string) => {
-    setQuantityValues((prev) => ({
+  const changeKg = (productId: string, value: string) => {
+    setKgValues((prev) => ({
       ...prev,
-      [productId]: normalizeQuantityText(value),
-    }));
-  };
-
-  const toggleUnit = (productId: string) => {
-    setUnitValues((prev) => ({
-      ...prev,
-      [productId]: prev[productId] === "kg" ? "un" : "kg",
+      [productId]: normalizeKgText(value),
     }));
   };
 
@@ -155,11 +145,16 @@ export default function PedidoDetalhe() {
   const getFinalItems = () => {
     if (!order) return [];
 
-    return order.items.map((item) => ({
-      ...item,
-      quantity: quantityTextToNumber(quantityValues[item.product_id] ?? "", item.quantity),
-      unit: unitValues[item.product_id] || item.unit || "un",
-    }));
+    return order.items.map((item) => {
+      const typedValue = kgValues[item.product_id] ?? String(item.quantity);
+
+      return {
+        ...item,
+        quantity: kgTextToNumber(typedValue, item.quantity),
+        quantity_text: typedValue,
+        unit: item.unit ?? "un",
+      };
+    });
   };
 
   const receiveOrder = async () => {
@@ -229,7 +224,7 @@ export default function PedidoDetalhe() {
               <View style={styles.infoBox}>
                 <Info size={20} color={colors.gold} />
                 <Text style={styles.infoText}>
-                  Altere a quantidade e escolha se o item final será unidade (un) ou peso (kg).
+                  Altere as quantidades e marque os itens que já foram separados.
                 </Text>
               </View>
 
@@ -238,12 +233,11 @@ export default function PedidoDetalhe() {
                   PRODUTO
                 </Text>
                 <Text style={styles.tableHeaderText}>ORIGINAL</Text>
-                <Text style={styles.tableHeaderText}>FINAL</Text>
+                <Text style={styles.tableHeaderText}>QTD.</Text>
               </View>
 
               {order.items.map((item) => {
                 const checked = !!checkedItems[item.product_id];
-                const unit = unitValues[item.product_id] || item.unit || "un";
 
                 return (
                   <View
@@ -271,27 +265,19 @@ export default function PedidoDetalhe() {
                       </Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.originalQty}>x{item.quantity} un</Text>
+                    <Text style={styles.originalQty}>x{item.quantity}{item.unit ?? "un"}</Text>
 
-                    <View style={styles.quantityInputWrap}>
+                    <View style={styles.kgInputWrap}>
                       <TextInput
-                        value={quantityValues[item.product_id] ?? ""}
-                        onChangeText={(v) => changeQuantity(item.product_id, v)}
+                        value={kgValues[item.product_id] ?? ""}
+                        onChangeText={(v) => changeKg(item.product_id, v)}
                         keyboardType="decimal-pad"
                         maxLength={7}
-                        style={styles.quantityInput}
+                        style={styles.kgInput}
                         placeholder="0"
                         placeholderTextColor={colors.textDisabled}
                       />
-                      <TouchableOpacity
-                        style={[styles.unitButton, unit === "kg" && styles.unitButtonKg]}
-                        onPress={() => toggleUnit(item.product_id)}
-                        activeOpacity={0.85}
-                      >
-                        <Text style={[styles.unitText, unit === "kg" && styles.unitTextKg]}>
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
+                      <Text style={styles.kgText}>{item.unit ?? "un"}</Text>
                     </View>
                   </View>
                 );
@@ -498,8 +484,8 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     textAlign: "center",
   },
-  quantityInputWrap: {
-    width: 104,
+  kgInputWrap: {
+    width: 82,
     height: 42,
     borderRadius: 10,
     borderWidth: 1,
@@ -509,7 +495,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 8,
   },
-  quantityInput: {
+  kgInput: {
     flex: 1,
     color: colors.textPrimary,
     fontSize: 15,
@@ -517,28 +503,11 @@ const styles = StyleSheet.create({
     padding: 0,
     textAlign: "center",
   },
-  unitButton: {
-    minWidth: 34,
-    height: 28,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.inputBg,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    marginLeft: 4,
-  },
-  unitButtonKg: {
-    backgroundColor: colors.goldSoft,
-    borderColor: colors.goldBorder,
-  },
-  unitText: {
-    color: colors.textSecondary,
+  kgText: {
+    color: colors.gold,
     fontSize: 12,
     fontWeight: "900",
-  },
-  unitTextKg: {
-    color: colors.gold,
+    marginLeft: 4,
   },
   progressBox: {
     marginTop: spacing.sm,

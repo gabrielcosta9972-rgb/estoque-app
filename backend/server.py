@@ -170,6 +170,7 @@ class OrderItem(BaseModel):
     product_id: str
     name: str
     quantity: float = Field(..., ge=0)
+    unit: Optional[str] = None
 
 
 class CreateOrderRequest(BaseModel):
@@ -378,6 +379,7 @@ async def receive_order(
                 "product_id": str(item.product_id),
                 "name": item.name,
                 "quantity": float(item.quantity) if item.quantity is not None else 0,
+                "unit": getattr(item, "unit", None) or "kg",
             }
             for item in payload.items
         ]

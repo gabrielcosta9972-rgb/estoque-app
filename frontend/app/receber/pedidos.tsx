@@ -20,7 +20,13 @@ import { api, formatApiError } from "../../src/api";
 import { colors, spacing, radius } from "../../src/theme";
 import { tapGestureHandlerProps } from "react-native-gesture-handler/lib/typescript/handlers/TapGestureHandler";
 
-type OrderItem = { product_id: string; name: string; quantity: number };
+type OrderItem = {
+  product_id: string;
+  name: string;
+  quantity: number;
+  unit?: "kg" | "un";
+  quantity_text?: string;
+};
 type Order = {
   id: string;
   store: string;
@@ -65,11 +71,12 @@ export default function ReceberPedidos() {
           items: items.map((it) => ({
             ...it,
             quantity: Number.isFinite(Number(it.quantity)) ? Number(it.quantity) : 0,
-            unidade:
-            (it as any).unidade ||
-            (String((it as any).nome || (it as any).name || "").toLowerCase().includes("1kg")
-            ? "kg"
-            : "un"),
+            unit:
+              it.unit ||
+              (String((it as any).nome || it.name || "").toLowerCase().includes("1kg")
+                ? "kg"
+                : "un"),
+            quantity_text: String(it.quantity),
               
           })),
           adjustment_note: note?.trim() || undefined,

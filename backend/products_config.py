@@ -1,8 +1,27 @@
-PRODUCTS = {
+CATEGORY_UNITS = {
+    "Mercearia": "kg",
+    "Resfriados": "kg",
+    "Congelados": "kg",
+    "Hortifruti": "kg",
+    "Bebidas": "un",
+    "Doces": "kg",
+    "Embalagens": "un",
+    "Limpeza": "un",
+    "Outros": "un",
+}
+
+ITEM_OVERRIDES = {
+    "Leite integral 1l": "un",
+    "Sorvete Creme 10l": "un",
+    "AÇAI": "un",
+
+}
+
+RAW_PRODUCTS = {
     "Mercearia": [
         "Atum cx",
         "Azeitona",
-        "Açúcar " ,
+        "Açúcar ",
         "Sal 1kg",
         "Azeite",
         "Farinha 5kg",
@@ -33,24 +52,6 @@ PRODUCTS = {
         "Sache de Ketchup",
         "óregano 500g",
         "Tomate seco",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     ],
     "Resfriados": [
         "Mussarela Cx",
@@ -72,56 +73,39 @@ PRODUCTS = {
         "Catupiry Original Cx",
         "Catupiry Original un",
         "Gorgonzola",
-
-
-
-
-
-
-
-        
-],
-"Congelados": [
-    "AÇAI",
-    "Sorvete Creme 10l",
-    "Morango polpa 1kg",
-    "Brocolis pct",
-    "Frango pct",
-    "Camarão pct",
-    "Apresuntado pct",
-    "Lombo pct",
-    "Calabresa pct Dv",
-    "Calabresa pct Rd",
-    "Calabresa Moida pct Dv",
-    "Calabresa Moida pct Rd",
-    "Parmesão pct",
-    "Provolone pct",
-    "Carne Moida kg",
-    "Bacon pct",
-    "Queijo Brie",
-    "Escarola pct",
-    "Berinjela pct",
-    "Carne seca pct",
-    "Costela pct",
-    "Queijo coalho pct",
-    "Peito de peru pct",
-    "Polpa Abacaxi 1,2kg",
-    "Polpa Maracuja 1,2kg",
-    "Polpa Manga 1,2kg",
-    "Polpa Acerola 1,2kg",
-    "Polpa Frutas vermelhas 1,2kg",
-    "Cebola Caramelizada",
-    "Toscana pct",
-
-
-
-
-
-
-
-
-],
-
+    ],
+    "Congelados": [
+        "AÇAI",
+        "Sorvete Creme 10l",
+        "Morango polpa 1kg",
+        "Brocolis pct",
+        "Frango pct",
+        "Camarão pct",
+        "Apresuntado pct",
+        "Lombo pct",
+        "Calabresa pct Dv",
+        "Calabresa pct Rd",
+        "Calabresa Moida pct Dv",
+        "Calabresa Moida pct Rd",
+        "Parmesão pct",
+        "Provolone pct",
+        "Carne Moida kg",
+        "Bacon pct",
+        "Queijo Brie",
+        "Escarola pct",
+        "Berinjela pct",
+        "Carne seca pct",
+        "Costela pct",
+        "Queijo coalho pct",
+        "Peito de peru pct",
+        "Polpa Abacaxi 1,2kg",
+        "Polpa Maracuja 1,2kg",
+        "Polpa Manga 1,2kg",
+        "Polpa Acerola 1,2kg",
+        "Polpa Frutas vermelhas 1,2kg",
+        "Cebola Caramelizada",
+        "Toscana pct",
+    ],
     "Hortifruti": [
         "Abacaxi",
         "Alho póro",
@@ -144,15 +128,8 @@ PRODUCTS = {
         "Tomate Corte kg",
         "Tomate Cereja 200g",
         "Uva cx",
-
-
-
-
-
-
-
     ],
-    "Bebidas":[
+    "Bebidas": [
         "Água uni",
         "Água FD",
         "Água com gas uni",
@@ -227,19 +204,6 @@ PRODUCTS = {
         "Xarope de Menta",
         "Xarope de Morango",
         "Xarope de Groselha",
-
-
-
-
-
-
-        
-
-
-
-
-
-
     ],
     "Doces": [
         "Bombom Sonho de Valsa",
@@ -267,13 +231,6 @@ PRODUCTS = {
         "Creme de Ninho uni",
         "Nutela 3kg",
         "Suspiro",
-
-
-
-
-
-
-
     ],
     "Embalagens": [
         "Bobina p",
@@ -307,26 +264,13 @@ PRODUCTS = {
         "Saquinho talher",
         "Touca descartavel",
         "Vela palitinho",
-
-
-
-
-
-
-
-
-
-        
-
-
-    
     ],
     "Limpeza": [
         "Detergente",
         "Saco de lixo",
         "Esponja c10 uni",
         "Álcool",
-        "Álcool Gel 5l"
+        "Álcool Gel 5l",
         "Cloro 5L",
         "Desinfetate 5l",
         "Detergente",
@@ -349,17 +293,7 @@ PRODUCTS = {
         "Soft care sabonete antisséptico",
         "Sumagril",
         "Suma power 5l",
-        "Suma rinse bb 5l"
-
-
-
-
-    
-
-
-
-
-
+        "Suma rinse bb 5l",
     ],
     "Outros": [
         "Abridor",
@@ -389,20 +323,27 @@ PRODUCTS = {
         "Pá para pizza",
         "Rolo de etiqueta termica",
         "Rolo furador",
-
-
-
-
-
-        
     ],
-    "Almoco":[
-        "Arroz 5kg",
-        "Feijão",
-        "Macarrão",
-        "Mandioca kg",
-        "Carne kg",
-        "Mistura para bolo",
-        "Tempero de galinha",
-    ]
+
 }
+
+
+def build_products(products):
+    result = {}
+
+    for category, items in products.items():
+        default_unit = CATEGORY_UNITS.get(category, "un")
+        result[category] = []
+
+        for item in items:
+            unit = ITEM_OVERRIDES.get(item, default_unit)
+
+            result[category].append({
+                "name": item,
+                "unit": unit,
+            })
+
+    return result
+
+
+PRODUCTS = build_products(RAW_PRODUCTS)
