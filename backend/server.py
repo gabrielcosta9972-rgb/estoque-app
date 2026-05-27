@@ -191,7 +191,7 @@ class Order(BaseModel):
     original_items: Optional[List[OrderItem]] = None
     adjustment_note: Optional[str] = None
     has_adjustments: bool = False
-    status: str  # 'em_via' or 'recebido'
+    status: str
     created_by: str
     created_by_name: Optional[str] = None
     created_at: datetime
@@ -334,8 +334,6 @@ async def list_orders(
     query = {}
     if store:
         normalized_store = normalize_store(store)
-        # Quem recebe abrindo Baeta também enxerga pedidos das sublojas
-        # Pizzaria, Copa e Bar.
         if user_role == "receber" and normalized_store == "Baeta":
             query["store"] = {"$in": BAETA_ALL_STORES}
         else:

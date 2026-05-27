@@ -65,6 +65,12 @@ export default function ReceberPedidos() {
           items: items.map((it) => ({
             ...it,
             quantity: Number.isFinite(Number(it.quantity)) ? Number(it.quantity) : 0,
+            unidade:
+            (it as any).unidade ||
+            (String((it as any).nome || (it as any).name || "").toLowerCase().includes("1kg")
+            ? "kg"
+            : "un"),
+              
           })),
           adjustment_note: note?.trim() || undefined,
         }
@@ -98,7 +104,7 @@ export default function ReceberPedidos() {
   const formatDate = (iso: string) => {
     try {
       const d = new Date(iso);
-      return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,});
     } catch { return ""; }
   };
 

@@ -130,13 +130,13 @@ ${pedido.received_by_name || "Não informado"}
       : "Isto vai apagar todos os seus pedidos já recebidos. Os que ainda estão em via continuam. Confirmar?";
 
     if (Platform.OS === "web") {
-      // No navegador, Alert.alert e Modal podem falhar; usa confirm() nativo do browser
+      
       if (window.confirm(msg)) {
         doClear();
       }
       return;
     }
-    // No mobile, usa o modal customizado
+    
     setConfirmOpen(true);
   };
 
@@ -144,7 +144,7 @@ ${pedido.received_by_name || "Não informado"}
     if (!iso) return "";
     try {
       const d = new Date(iso);
-      return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,});
     } catch {
       return "";
     }

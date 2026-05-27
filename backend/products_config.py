@@ -2,7 +2,7 @@ PRODUCTS = {
     "Mercearia": [
         "Atum cx",
         "Azeitona",
-        "Açúcar 1kg",
+        "Açúcar " ,
         "Sal 1kg",
         "Azeite",
         "Farinha 5kg",
