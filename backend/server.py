@@ -164,6 +164,7 @@ class Product(BaseModel):
     id: str
     name: str
     category: str
+    unit: str = "un"
 
 
 class OrderItem(BaseModel):
@@ -303,11 +304,18 @@ async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_cur
         raise HTTPException(status_code=400, detail="Carrinho vazio")
     order_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
+    final_items = []
+    for item in payload.items:
+        item_doc = item.model_dump()
+        product = await db.products.find_one({"id": item.product_id}, {"_id": 0})
+        item_doc["unit"] = item_doc.get("unit") or (product or {}).get("unit") or "un"
+        final_items.append(item_doc)
+
     doc = {
         "id": order_id,
         "store": normalized_store,
         "store_label": STORE_LABELS[normalized_store],
-        "items": [item.model_dump() for item in payload.items],
+        "items": final_items,
         "original_items": None,
         "adjustment_note": None,
         "has_adjustments": False,
@@ -374,15 +382,23 @@ async def receive_order(
         if not payload.items:
             raise HTTPException(status_code=400, detail="O pedido precisa ter pelo menos 1 item")
     
-        final_items = [
-            {
-                "product_id": str(item.product_id),
+        original_units = {
+            str(it.get("product_id") or it.get("name") or ""): it.get("unit")
+            for it in original_items
+        }
+
+        final_items = []
+        for item in payload.items:
+            product_id = str(item.product_id)
+            product = await db.products.find_one({"id": product_id}, {"_id": 0})
+            unit = getattr(item, "unit", None) or original_units.get(product_id) or (product or {}).get("unit") or "un"
+
+            final_items.append({
+                "product_id": product_id,
                 "name": item.name,
                 "quantity": float(item.quantity) if item.quantity is not None else 0,
-                "unit": getattr(item, "unit", None) or "kg",
-            }
-            for item in payload.items
-        ]
+                "unit": unit,
+            })
         altered = True
 
     if payload and payload.adjustment_note:
@@ -474,25 +490,45 @@ async def on_startup():
     )
 
 
-    desired = {(cat, name.strip()) for cat, names in SEED_PRODUCTS.items() for name in names if name.strip()}
+    desired = {}
+    for cat, products in SEED_PRODUCTS.items():
+        for product in products:
+            if isinstance(product, dict):
+                name = str(product.get("name", "")).strip()
+                unit = str(product.get("unit") or "un")
+            else:
+                name = str(product).strip()
+                unit = "un"
+
+            if name:
+                desired[(cat, name)] = unit
+
     existing_docs = await db.products.find({}, {"_id": 0}).to_list(2000)
     existing_set = {(d["category"], d["name"]) for d in existing_docs}
+    desired_set = set(desired.keys())
 
-    to_insert = desired - existing_set
-    to_delete = existing_set - desired
+    to_insert = desired_set - existing_set
+    to_delete = existing_set - desired_set
 
     if to_insert:
         await db.products.insert_many([
-            {"id": str(uuid.uuid4()), "category": cat, "name": name}
+            {"id": str(uuid.uuid4()), "category": cat, "name": name, "unit": desired[(cat, name)]}
             for (cat, name) in to_insert
         ])
+
+    for (cat, name), unit in desired.items():
+        await db.products.update_one(
+            {"category": cat, "name": name},
+            {"$set": {"unit": unit}},
+        )
+
     if to_delete:
         await db.products.delete_many({
             "$or": [{"category": cat, "name": name} for (cat, name) in to_delete]
         })
 
     logger.info("Sync produtos: +%d novos, -%d removidos, %d total",
-                len(to_insert), len(to_delete), len(desired))
+                len(to_insert), len(to_delete), len(desired_set))
 
 
 @app.on_event("shutdown")

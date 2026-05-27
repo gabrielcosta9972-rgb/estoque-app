@@ -11,7 +11,6 @@ CATEGORY_UNITS = {
 }
 
 ITEM_OVERRIDES = {
-    "Leite integral 1l": "un",
     "Sorvete Creme 10l": "un",
     "AÇAI": "un",
 
