@@ -16,7 +16,7 @@ import { api, formatApiError } from "../../src/api";
 import { useCart } from "../../src/cart";
 import { colors, spacing, radius } from "../../src/theme";
 
-type Product = { id: string; name: string; category: string };
+type Product = { id: string; name: string; category: string; unit?: "kg" | "un" };
 
 function normalize(s: string): string {
   return s
@@ -67,7 +67,7 @@ export default function PedirProdutos() {
   const updateQty = (p: Product, delta: number) => {
     const current = cartMap[p.id] || 0;
     const next = Math.max(0, current + delta);
-    addOrUpdate({ product_id: p.id, name: p.name, quantity: next });
+    addOrUpdate({ product_id: p.id, name: p.name, quantity: next, unit: p.unit ?? "un" });
   };
 
   return (

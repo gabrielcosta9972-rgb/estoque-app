@@ -100,7 +100,7 @@ export default function PedidoDetalhe() {
         const initialKgValues: Record<string, string> = {};
 
         found.items.forEach((item) => {
-          initialKgValues[item.product_id] = String(item.quantity);
+          initialKgValues[item.product_id] = item.quantity_text || String(item.quantity);
         });
 
         setKgValues(initialKgValues);

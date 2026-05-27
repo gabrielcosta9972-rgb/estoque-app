@@ -71,11 +71,7 @@ export default function ReceberPedidos() {
           items: items.map((it) => ({
             ...it,
             quantity: Number.isFinite(Number(it.quantity)) ? Number(it.quantity) : 0,
-            unit:
-              it.unit ||
-              (String((it as any).nome || it.name || "").toLowerCase().includes("1kg")
-                ? "kg"
-                : "un"),
+            unit: it.unit ?? "un",
             quantity_text: String(it.quantity),
               
           })),
@@ -102,11 +98,26 @@ export default function ReceberPedidos() {
     setAdjustmentNote("");
   };
 
-  const changeQty = (productId: string, value: string) => {
-    const onlyNumbers = value.replace(/\D/g, "");
-    const quantity = onlyNumbers === "" ? 0 : Number(onlyNumbers);
-    setEditedItems((prev) => prev.map((it) => it.product_id === productId ? { ...it, quantity } : it));
+  const normalizeQtyText = (value: string) => {
+    const clean = value.replace(",", ".").replace(/[^0-9.]/g, "");
+    const parts = clean.split(".");
+    if (parts.length <= 2) return clean;
+    return `${parts[0]}.${parts.slice(1).join("")}`;
   };
+
+  const changeQty = (productId: string, value: string) => {
+    const clean = normalizeQtyText(value);
+    const quantity = clean === "" ? 0 : Number(clean);
+    setEditedItems((prev) =>
+      prev.map((it) =>
+        it.product_id === productId
+          ? { ...it, quantity: Number.isFinite(quantity) ? quantity : 0, quantity_text: clean }
+          : it
+      )
+    );
+  };
+
+  const formatQty = (it: OrderItem) => `${it.quantity_text ?? it.quantity}${it.unit ?? "un"}`;
 
   const formatDate = (iso: string) => {
     try {
@@ -157,7 +168,7 @@ export default function ReceberPedidos() {
               {item.items.map((it) => (
                 <View key={it.product_id} style={styles.itemRow}>
                   <Text style={styles.itemName} numberOfLines={2}>{it.name}</Text>
-                  <Text style={styles.itemQty}>x{it.quantity}</Text>
+                  <Text style={styles.itemQty}>{formatQty(it)}</Text>
                 </View>
               ))}
 
@@ -201,7 +212,7 @@ export default function ReceberPedidos() {
                   <TextInput
                     style={styles.qtyInput}
                     value={String(it.quantity)}
-                    keyboardType="number-pad"
+                    keyboardType="decimal-pad"
                     onChangeText={(v) => changeQty(it.product_id, v)}
                   />
                 </View>

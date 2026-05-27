@@ -164,7 +164,7 @@ class Product(BaseModel):
     id: str
     name: str
     category: str
-    unit: str = "un"
+    unit: Optional[str] = "un"
 
 
 class OrderItem(BaseModel):
@@ -304,18 +304,11 @@ async def create_order(payload: CreateOrderRequest, user: dict = Depends(get_cur
         raise HTTPException(status_code=400, detail="Carrinho vazio")
     order_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
-    final_items = []
-    for item in payload.items:
-        item_doc = item.model_dump()
-        product = await db.products.find_one({"id": item.product_id}, {"_id": 0})
-        item_doc["unit"] = item_doc.get("unit") or (product or {}).get("unit") or "un"
-        final_items.append(item_doc)
-
     doc = {
         "id": order_id,
         "store": normalized_store,
         "store_label": STORE_LABELS[normalized_store],
-        "items": final_items,
+        "items": [item.model_dump() for item in payload.items],
         "original_items": None,
         "adjustment_note": None,
         "has_adjustments": False,
@@ -378,27 +371,24 @@ async def receive_order(
     adjustment_note: Optional[str] = None
     altered = False  # marca se o recebedor de fato mandou um payload com items
 
+    original_unit_by_product = {
+        str(it.get("product_id") or it.get("name") or ""): it.get("unit", "un")
+        for it in original_items
+    }
+
     if payload and payload.items is not None:
         if not payload.items:
             raise HTTPException(status_code=400, detail="O pedido precisa ter pelo menos 1 item")
     
-        original_units = {
-            str(it.get("product_id") or it.get("name") or ""): it.get("unit")
-            for it in original_items
-        }
-
-        final_items = []
-        for item in payload.items:
-            product_id = str(item.product_id)
-            product = await db.products.find_one({"id": product_id}, {"_id": 0})
-            unit = getattr(item, "unit", None) or original_units.get(product_id) or (product or {}).get("unit") or "un"
-
-            final_items.append({
-                "product_id": product_id,
+        final_items = [
+            {
+                "product_id": str(item.product_id),
                 "name": item.name,
                 "quantity": float(item.quantity) if item.quantity is not None else 0,
-                "unit": unit,
-            })
+                "unit": getattr(item, "unit", None) or original_unit_by_product.get(str(item.product_id), "un"),
+            }
+            for item in payload.items
+        ]
         altered = True
 
     if payload and payload.adjustment_note:
@@ -490,36 +480,43 @@ async def on_startup():
     )
 
 
-    desired = {}
+    desired_docs = []
     for cat, products in SEED_PRODUCTS.items():
         for product in products:
             if isinstance(product, dict):
                 name = str(product.get("name", "")).strip()
-                unit = str(product.get("unit") or "un")
+                unit = product.get("unit") or "un"
             else:
                 name = str(product).strip()
                 unit = "un"
 
             if name:
-                desired[(cat, name)] = unit
+                desired_docs.append({"category": cat, "name": name, "unit": unit})
+
+    desired = {(p["category"], p["name"]) for p in desired_docs}
+    desired_by_key = {(p["category"], p["name"]): p for p in desired_docs}
 
     existing_docs = await db.products.find({}, {"_id": 0}).to_list(2000)
     existing_set = {(d["category"], d["name"]) for d in existing_docs}
-    desired_set = set(desired.keys())
 
-    to_insert = desired_set - existing_set
-    to_delete = existing_set - desired_set
+    to_insert = desired - existing_set
+    to_delete = existing_set - desired
 
     if to_insert:
         await db.products.insert_many([
-            {"id": str(uuid.uuid4()), "category": cat, "name": name, "unit": desired[(cat, name)]}
+            {
+                "id": str(uuid.uuid4()),
+                "category": desired_by_key[(cat, name)]["category"],
+                "name": desired_by_key[(cat, name)]["name"],
+                "unit": desired_by_key[(cat, name)]["unit"],
+            }
             for (cat, name) in to_insert
         ])
 
-    for (cat, name), unit in desired.items():
+    for key in desired & existing_set:
         await db.products.update_one(
-            {"category": cat, "name": name},
-            {"$set": {"unit": unit}},
+            {"category": key[0], "name": key[1]},
+            {"$set": {"unit": desired_by_key[key]["unit"]}},
         )
 
     if to_delete:
@@ -528,7 +525,7 @@ async def on_startup():
         })
 
     logger.info("Sync produtos: +%d novos, -%d removidos, %d total",
-                len(to_insert), len(to_delete), len(desired_set))
+                len(to_insert), len(to_delete), len(desired))
 
 
 @app.on_event("shutdown")

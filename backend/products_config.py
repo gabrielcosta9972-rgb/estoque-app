@@ -1,16 +1,17 @@
 CATEGORY_UNITS = {
-    "Mercearia": "kg",
+    "Mercearia": "un",
     "Resfriados": "kg",
     "Congelados": "kg",
     "Hortifruti": "kg",
     "Bebidas": "un",
-    "Doces": "kg",
+    "Doces": "un",
     "Embalagens": "un",
     "Limpeza": "un",
     "Outros": "un",
+    "Almoco": "kg",
 }
-
 ITEM_OVERRIDES = {
+    "Leite integral 1l": "un",
     "Sorvete Creme 10l": "un",
     "AÇAI": "un",
 

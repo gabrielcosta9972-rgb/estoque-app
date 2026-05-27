@@ -80,17 +80,14 @@ export default function EntregueScreen() {
   };
 
 
-  const formatQty = (item?: OrderItem | null, forceUnit?: "kg" | "un") => {
+  const formatQty = (item?: OrderItem | null) => {
     if (!item) return "";
 
-    const unit = forceUnit || item.unit;
+    const unit = item.unit ?? "un";
     const rawText = item.quantity_text?.trim();
     const value = rawText || String(item.quantity);
 
-    if (unit === "kg") return `${value}kg`;
-    if (unit === "un") return `x${Number(item.quantity)}`;
-
-    return String(item.quantity).includes(".") ? `${item.quantity}kg` : `x${item.quantity}`;
+    return `${value}${unit}`;
   };
 
   const clearDelivered = () => {
@@ -148,11 +145,11 @@ export default function EntregueScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemName} numberOfLines={2}>{it.name}</Text>
                 {itemChanged ? (
-                  <Text style={styles.itemOriginal}>Pedido original: {formatQty(original, "un")}</Text>
+                  <Text style={styles.itemOriginal}>Pedido original: {formatQty(original)}</Text>
                 ) : null}
               </View>
               <Text style={[styles.itemQty, itemChanged ? styles.changedQty : null]}>
-                {formatQty(it, itemChanged ? "kg" : undefined)}
+                {formatQty(it)}
 </Text>
             </View>
           );
