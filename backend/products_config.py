@@ -1,5 +1,5 @@
 CATEGORY_UNITS = {
-    "Mercearia": "un",
+    "Mercearia": "kg",
     "Resfriados": "kg",
     "Congelados": "kg",
     "Hortifruti": "kg",
