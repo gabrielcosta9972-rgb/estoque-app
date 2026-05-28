@@ -4,7 +4,7 @@ CATEGORY_UNITS = {
     "Congelados": "kg",
     "Hortifruti": "kg",
     "Bebidas": "un",
-    "Doces": "un",
+    "Doces": "kg",
     "Embalagens": "un",
     "Limpeza": "un",
     "Outros": "un",
