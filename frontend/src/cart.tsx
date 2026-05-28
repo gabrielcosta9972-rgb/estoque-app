@@ -4,6 +4,8 @@ export type CartItem = {
   product_id: string;
   name: string;
   quantity: number;
+  unit?: "kg" | "un";
+  category?: string;
 };
 
 type CartState = {
@@ -25,7 +27,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const setStore = useCallback((id: string, label: string) => {
-    setStoreId((prev) => {
+    setStoreId((prev: string | null) => {
       if (prev !== id) setItems([]);
       return id;
     });
@@ -33,11 +35,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addOrUpdate = useCallback((item: CartItem) => {
-    setItems((prev) => {
-      const idx = prev.findIndex((i) => i.product_id === item.product_id);
+    setItems((prev: CartItem[]) => {
+      const idx = prev.findIndex((i: CartItem) => i.product_id === item.product_id);
       if (item.quantity <= 0) {
         if (idx === -1) return prev;
-        return prev.filter((i) => i.product_id !== item.product_id);
+        return prev.filter((i: CartItem) => i.product_id !== item.product_id);
       }
       if (idx === -1) return [...prev, item];
       const next = [...prev];
@@ -47,7 +49,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const remove = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.product_id !== productId));
+    setItems((prev: CartItem[]) => prev.filter((i: CartItem) => i.product_id !== productId));
   }, []);
 
   const clear = useCallback(() => {
@@ -56,7 +58,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setStoreLabel(null);
   }, []);
 
-  const totalCount = items.reduce((acc, i) => acc + i.quantity, 0);
+  const totalCount = items.reduce((acc: number, i: CartItem) => acc + i.quantity, 0);
 
   return (
     <CartContext.Provider

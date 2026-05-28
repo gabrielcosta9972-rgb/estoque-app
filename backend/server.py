@@ -172,6 +172,7 @@ class OrderItem(BaseModel):
     name: str
     quantity: float = Field(..., ge=0)
     unit: Optional[str] = None
+    category: Optional[str] = None
 
 
 class CreateOrderRequest(BaseModel):
